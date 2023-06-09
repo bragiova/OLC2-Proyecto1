@@ -1,0 +1,14 @@
+
+// prueba comentario
+/* comentario
+multilinea
+*/
+
+let a:string = "hola";
+let b = 50+10*5;
+let c:string = "mundo";
+console.log(a);
+console.log(b);
+console.log(a + c);
+
+let d;

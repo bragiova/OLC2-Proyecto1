@@ -5,12 +5,13 @@ class Tipo(Enum):
     NUMBER = 1
     BOOL = 2
     STRING = 3
-    ARREGLO = 4
-    INTERFAZ = 5
+    ANY = 4
+    ARREGLO = 5
+    INTERFAZ = 6
 
-    RETURNST = 6
-    CONTIST = 7
-    BREAKST = 8
+    RETURNST = 7
+    CONTIST = 8
+    BREAKST = 9
 
 class Retorno:
     def __init__(self, tipo, valor):

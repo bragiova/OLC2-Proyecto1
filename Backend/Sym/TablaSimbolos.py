@@ -1,5 +1,5 @@
 
-from Error import Error
+from Sym.Error import Error
 
 class TablaSimbolos:
     def __init__(self, envAnterior = None):
@@ -33,4 +33,12 @@ class TablaSimbolos:
             else:
                 envActual = envActual.envAnterior
         return Error("Semántico", "Variable no encontrada", simbolo.getLinea(), simbolo.getColumna())
+    
+    def existeSimbEnActual(self,identificador):
+        entorno = self
+        existe = entorno.tablaS.get(identificador)
+        if existe is not None:
+            return True
+        else:
+            return False
 

@@ -7,6 +7,8 @@ from Expressions.Primitivo import Primitivo
 from Instructions.ImprimirClg import ImprimirClg
 from Expressions.Logica import *
 from Expressions.Relacional import *
+from Instructions.Declaracion import Declaracion
+from Expressions.Identificador import Identificador
 
 precedence = (
     ('left', 'OR'),
@@ -35,12 +37,30 @@ def p_instrucciones_lista(t):
 
 def p_instruccion(t):
     '''instruccion      : console_inst PCOMA
+                        | declaracion_inst PCOMA
                         '''
     t[0] = t[1]
 
 def p_console_inst(t):
     'console_inst : RCONSOLE PUNTO RLOG PARA expresion PARC'
     t[0] = ImprimirClg(t[5], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_declaracion_inst(t):
+    '''declaracion_inst : RLET ID DPUNTOS tipo IGUAL expresion
+                        | RLET ID DPUNTOS tipo'''
+    if len(t) == 5:
+        t[0] = Declaracion(t[2], None, t[4], t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] = Declaracion(t[2], t[6], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_declaracion_sin_tipo(t):
+    '''declaracion_inst : RLET ID IGUAL expresion
+                        | RLET ID'''
+    if len(t) == 3:
+        t[0] = Declaracion(t[2], None, Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] = Declaracion(t[2], t[4], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+
 
 # Expresiones
 def p_expresion_aritmetica(t):
@@ -111,7 +131,7 @@ def p_expresion_primitivos(t):
     elif t.slice[1].type == 'DECIMAL':
         t[0] = Primitivo(Tipo.NUMBER, t[1], t.lineno(1), find_column(input, t.slice[1]))
     elif t.slice[1].type == 'ID':
-        t[0] = Primitivo(Tipo.STRING, t[1], t.lineno(1), find_column(input, t.slice[1]))
+        t[0] = Identificador(t[1], t.lineno(1), find_column(input, t.slice[1]))
     elif t.slice[1].type == 'CADENA':
         t[0] = Primitivo(Tipo.STRING, t[1], t.lineno(1), find_column(input, t.slice[1]))
     elif t.slice[1].type == 'RTRUE':
@@ -119,6 +139,20 @@ def p_expresion_primitivos(t):
     elif t.slice[1].type == 'RFALSE':
         t[0] = Primitivo(Tipo.BOOL, t[1], t.lineno(1), find_column(input, t.slice[1]))
     
+def p_tipo(t):
+    '''tipo : RNUMBER
+            | RSTRING
+            | RBOOLEAN
+            | RANY'''
+    if t.slice[1].type == 'RNUMBER':
+        t[0] = Tipo.NUMBER
+    elif t.slice[1].type == 'RSTRING':
+        t[0] = Tipo.STRING
+    elif t.slice[1].type == 'RBOOLEAN':
+        t[0] = Tipo.BOOL
+    elif t.slice[1].type == 'RANY':
+        t[0] = Tipo.ANY
+
 def p_error(t):
     print(" Error sintáctico en '%s'" % t.value)
 
