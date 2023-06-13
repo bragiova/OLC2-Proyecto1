@@ -24,7 +24,7 @@ class Declaracion(Instruccion):
         if self.tipo == Tipo.ANY:
             valorVar.tipo = Tipo.ANY
 
-        if self.tipo == valorVar.tipo:
+        if self.tipo == valorVar.tipo or valorVar.tipo == Tipo.NULL:
             nuevoSimbolo = Simbolo(self.ident, self.tipo, valorVar.valor, self.linea, self.columna)
 
             if env.existeSimbEnActual(self.ident):

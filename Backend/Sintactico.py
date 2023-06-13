@@ -12,6 +12,7 @@ from Expressions.Identificador import Identificador
 from Instructions.Asignacion import Asignacion
 from Instructions.If import If
 from Instructions.For import For
+from Instructions.While import While
 
 precedence = (
     ('left', 'OR'),
@@ -53,6 +54,7 @@ def p_instruccion_t(t):
                         | asignacion_inst
                         | if_inst
                         | for_inst
+                        | while_inst
                         '''
     t[0] = t[1]
 
@@ -105,6 +107,10 @@ def p_for(t):
     'for_inst : RFOR PARA declaracion_inst PCOMA expresion PCOMA expresion PARC LLAVEA instrucciones LLAVEC'
     t[0] = For(t[3], t[5], t[7], t[10], t.lineno(1), find_column(input, t.slice[1]))
 
+# While
+def p_while_inst(t):
+    'while_inst : RWHILE expresion LLAVEA instrucciones LLAVEC'
+    t[0] = While(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
 
 # Expresiones
 def p_expresion_aritmetica(t):
