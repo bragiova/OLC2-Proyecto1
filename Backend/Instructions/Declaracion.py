@@ -2,7 +2,6 @@
 from Abstract.Instruccion import Instruccion
 from Abstract.Retorno import *
 from Sym.Simbolo import Simbolo
-from Sym.TablaSimbolos import TablaSimbolos
 from Sym.Error import Error
 
 class Declaracion(Instruccion):

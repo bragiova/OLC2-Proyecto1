@@ -9,6 +9,9 @@ from Expressions.Logica import *
 from Expressions.Relacional import *
 from Instructions.Declaracion import Declaracion
 from Expressions.Identificador import Identificador
+from Instructions.Asignacion import Asignacion
+from Instructions.If import If
+from Instructions.For import For
 
 precedence = (
     ('left', 'OR'),
@@ -38,13 +41,27 @@ def p_instrucciones_lista(t):
 def p_instruccion(t):
     '''instruccion      : console_inst PCOMA
                         | declaracion_inst PCOMA
+                        | asignacion_inst PCOMA
+                        | if_inst PCOMA
+                        | for_inst PCOMA
                         '''
     t[0] = t[1]
 
+def p_instruccion_t(t):
+    '''instruccion      : console_inst
+                        | declaracion_inst
+                        | asignacion_inst
+                        | if_inst
+                        | for_inst
+                        '''
+    t[0] = t[1]
+
+# console.log
 def p_console_inst(t):
     'console_inst : RCONSOLE PUNTO RLOG PARA expresion PARC'
     t[0] = ImprimirClg(t[5], t.lineno(1), find_column(input, t.slice[1]))
 
+# Declaración
 def p_declaracion_inst(t):
     '''declaracion_inst : RLET ID DPUNTOS tipo IGUAL expresion
                         | RLET ID DPUNTOS tipo'''
@@ -60,6 +77,33 @@ def p_declaracion_sin_tipo(t):
         t[0] = Declaracion(t[2], None, Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
     else:
         t[0] = Declaracion(t[2], t[4], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+
+# Asignación
+def p_asignacion_inst(t):
+    'asignacion_inst : ID IGUAL expresion'
+    t[0] = Asignacion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+# IF
+def p_if_inst(t):
+    'if_inst : RIF if_cond'
+    t[0] = t[2]
+
+def p_if_cond(t):
+    'if_cond : expresion LLAVEA instrucciones LLAVEC'
+    t[0] = If(t[1], t[3], None, None, t.lineno(2), find_column(input, t.slice[2]))
+
+def p_if_else(t):
+    'if_cond : expresion LLAVEA instrucciones LLAVEC RELSE LLAVEA instrucciones LLAVEC'
+    t[0] = If(t[1], t[3], t[7], None, t.lineno(2), find_column(input, t.slice[2]))
+
+def p_else_if(t):
+    'if_cond : expresion LLAVEA instrucciones LLAVEC RELSE RIF if_cond'
+    t[0] = If(t[1], t[3], None, t[7], t.lineno(2), find_column(input, t.slice[2]))
+
+# For
+def p_for(t):
+    'for_inst : RFOR PARA declaracion_inst PCOMA expresion PCOMA expresion PARC LLAVEA instrucciones LLAVEC'
+    t[0] = For(t[3], t[5], t[7], t[10], t.lineno(1), find_column(input, t.slice[1]))
 
 
 # Expresiones
@@ -118,6 +162,10 @@ def p_expresion_relacional(t):
     if t[2] == '!==':
         t[0] = Relacional(t[1], t[3], TipoRelacionales.DISTINTO, t.lineno(2), find_column(input, t.slice[2]))
 
+def p_expresion_parentesis(t):
+    'expresion : PARA expresion PARC'
+    t[0] = t[2]
+
 def p_expresion_primitivos(t):
     '''expresion : ENTERO
                  | DECIMAL
@@ -139,6 +187,16 @@ def p_expresion_primitivos(t):
     elif t.slice[1].type == 'RFALSE':
         t[0] = Primitivo(Tipo.BOOL, t[1], t.lineno(1), find_column(input, t.slice[1]))
     
+def p_expresion_incdec(t):
+    '''expresion : expresion MAS MAS
+                 | expresion MENOS MENOS'''
+    if t[2] == '+':
+        incrementable = Primitivo(Tipo.NUMBER, 1, t.lineno(2), find_column(input, t.slice[2]))
+        t[0] = Aritmetica(t[1], incrementable, TipoOperacionAritmetica.SUMA, t.lineno(2), find_column(input, t.slice[2]))
+    else:
+        decrementable = Primitivo(Tipo.NUMBER, 1, t.lineno(2), find_column(input, t.slice[2]))
+        t[0] = Aritmetica(t[1], decrementable, TipoOperacionAritmetica.RESTA, t.lineno(2), find_column(input, t.slice[2]))
+
 def p_tipo(t):
     '''tipo : RNUMBER
             | RSTRING

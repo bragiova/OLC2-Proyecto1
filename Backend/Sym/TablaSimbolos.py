@@ -30,6 +30,7 @@ class TablaSimbolos:
         while envActual != None:
             if simbolo.getId() in envActual.tablaS:
                 envActual.tablaS[simbolo.getId()].setValor(simbolo.getValor())
+                return None
             else:
                 envActual = envActual.envAnterior
         return Error("Semántico", "Variable no encontrada", simbolo.getLinea(), simbolo.getColumna())

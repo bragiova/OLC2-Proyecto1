@@ -44,7 +44,7 @@ class Relacional(Expresion):
                 print('Error operacion')
                 resultado.valor = ''
         else:
-            print('Error operaciónes relacionales tipo')
+            print('Error operaciones relacionales tipo')
             resultado.valor = ''
 
         return resultado
