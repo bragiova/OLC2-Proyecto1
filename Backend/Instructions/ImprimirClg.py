@@ -9,4 +9,4 @@ class ImprimirClg(Instruccion):
     def ejecutar(self, env):
         expre = self.expresion.ejecutar(env)
         print(expre.valor)
-        return expre.valor
+        return expre

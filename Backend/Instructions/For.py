@@ -18,6 +18,7 @@ class For(Instruccion):
         varInit = self.varInicio.ejecutar(entorno)
         # Evaluamos la condición
         condicion = self.condicion.ejecutar(entorno)
+        flagBreakContinue = False
 
         if condicion.tipo != Tipo.BOOL:
             return Error('Semántico', 'Tipo de dato en la condición no es Boolean', self.linea, self.columna)
@@ -26,6 +27,17 @@ class For(Instruccion):
             # Se ejecuta cada instrucción del bloque
             for instruccion in self.bloqueInst:
                 resultado = instruccion.ejecutar(entorno)
+
+                if resultado is not None:
+                    if resultado.tipo == Tipo.BREAKST or resultado.tipo == Tipo.CONTIST or resultado.tipo == Tipo.RETURNST:
+                        flagBreakContinue = True
+                        break
+            
+            if flagBreakContinue:
+                if resultado.tipo == Tipo.BREAKST:
+                    break
+                elif resultado.tipo == Tipo.RETURNST:
+                    return resultado
 
             # Actualizamos el valor de la variable inicial según el rango (incremento-decremento)
             initActualizado = self.expreRango.ejecutar(entorno)

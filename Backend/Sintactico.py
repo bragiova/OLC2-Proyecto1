@@ -17,6 +17,8 @@ from Instructions.Funcion import Funcion
 from Instructions.ParametroFuncion import ParametroFuncion
 from Expressions.LlamadaFuncion import LlamadaFuncion
 from Instructions.Return import Return
+from Instructions.Break import Break
+from Instructions.Continue import Continue
 
 precedence = (
     ('left', 'OR'),
@@ -51,6 +53,8 @@ def p_instruccion(t):
                         | for_inst PCOMA
                         | llamada_func PCOMA
                         | return_inst PCOMA
+                        | break_inst PCOMA
+                        | continue_inst PCOMA
                         '''
     t[0] = t[1]
 
@@ -64,6 +68,8 @@ def p_instruccion_t(t):
                         | funcion_inst
                         | llamada_func
                         | return_inst
+                        | break_inst
+                        | continue_inst
                         '''
     t[0] = t[1]
 
@@ -154,6 +160,14 @@ def p_return_inst(t):
         t[0] =  Return(None, t.lineno(1), find_column(input, t.slice[1]))
     else:
         t[0] =  Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_break_inst(t):
+    'break_inst : RBREAK'
+    t[0] = Break(t.lineno(1), find_column(input, t.slice[1]))
+
+def p_continue_inst(t):
+    'continue_inst : RCONTINUE'
+    t[0] = Continue(t.lineno(1), find_column(input, t.slice[1]))
 
 # Expresiones
 def p_expresion_aritmetica(t):
