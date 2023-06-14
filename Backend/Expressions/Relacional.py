@@ -23,6 +23,18 @@ class Relacional(Expresion):
         opIzq = self.opeIzq.ejecutar(env)
         opDer = self.opeDer.ejecutar(env)
 
+        if opIzq.tipo == Tipo.RETURNST:
+            if isinstance(opIzq.valor, int) or isinstance(opIzq.valor, float):
+                opIzq.tipo = Tipo.NUMBER
+            elif isinstance(opIzq.valor, str):
+                opIzq.tipo = Tipo.STRING
+        
+        if opDer.tipo == Tipo.RETURNST:
+            if isinstance(opDer.valor, int) or isinstance(opDer.valor, float):
+                opDer.tipo = Tipo.NUMBER
+            elif isinstance(opIzq.valor, str):
+                opIzq.tipo = Tipo.STRING
+
         # Se inicializa el objeto Resultado con el tipo Bool por defecto
         resultado = Retorno(Tipo.BOOL, False)
         esTipoPermitido = (opIzq.tipo == Tipo.NUMBER and opDer.tipo == Tipo.NUMBER) or (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING)

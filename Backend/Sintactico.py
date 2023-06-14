@@ -13,6 +13,10 @@ from Instructions.Asignacion import Asignacion
 from Instructions.If import If
 from Instructions.For import For
 from Instructions.While import While
+from Instructions.Funcion import Funcion
+from Instructions.ParametroFuncion import ParametroFuncion
+from Expressions.LlamadaFuncion import LlamadaFuncion
+from Instructions.Return import Return
 
 precedence = (
     ('left', 'OR'),
@@ -20,7 +24,7 @@ precedence = (
     ('right', 'UNOT'),
     ('left', 'IGUALIGUAL', 'DISTINTO'),
     ('left', 'MAYOR', 'MENOR', 'MAYORIGUAL', 'MENORIGUAL'),
-    ('left', 'MAS', 'MENOS'),
+    ('left', 'MAS', 'MENOS', 'COMA'),
     ('left', 'POR', 'DIV', 'MOD'),
     ('left', 'POT'),
     ('right', 'UMENOS')
@@ -45,6 +49,8 @@ def p_instruccion(t):
                         | asignacion_inst PCOMA
                         | if_inst PCOMA
                         | for_inst PCOMA
+                        | llamada_func PCOMA
+                        | return_inst PCOMA
                         '''
     t[0] = t[1]
 
@@ -55,6 +61,9 @@ def p_instruccion_t(t):
                         | if_inst
                         | for_inst
                         | while_inst
+                        | funcion_inst
+                        | llamada_func
+                        | return_inst
                         '''
     t[0] = t[1]
 
@@ -111,6 +120,40 @@ def p_for(t):
 def p_while_inst(t):
     'while_inst : RWHILE expresion LLAVEA instrucciones LLAVEC'
     t[0] = While(t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+# Funciones
+def p_funcion_inst(t):
+    'funcion_inst : RFUNCTION ID PARA PARC LLAVEA instrucciones LLAVEC'
+    t[0] = Funcion(t[2], [], t[6], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_funcion_param(t):
+    'funcion_inst : RFUNCTION ID PARA list_params PARC LLAVEA instrucciones LLAVEC'
+    t[0] = Funcion(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_list_params(t):
+    '''list_params : list_params COMA parametro
+                   | parametro'''
+    if len(t) != 2:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+    
+def p_parametro(t):
+    '''parametro : ID DPUNTOS tipo
+                 | ID'''
+    if len(t) == 2:
+        t[0] = ParametroFuncion(t[1], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] = ParametroFuncion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_return_inst(t):
+    '''return_inst : RRETURN
+                   | RRETURN expresion'''
+    if len(t) == 2:
+        t[0] =  Return(None, t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] =  Return(t[2], t.lineno(1), find_column(input, t.slice[1]))
 
 # Expresiones
 def p_expresion_aritmetica(t):
@@ -172,6 +215,23 @@ def p_expresion_parentesis(t):
     'expresion : PARA expresion PARC'
     t[0] = t[2]
 
+def p_llamada_funcion(t):
+    'llamada_func : ID PARA PARC'
+    t[0] = LlamadaFuncion(t[1], [], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_llamada_func_param(t):
+    'llamada_func : ID PARA expresion_list PARC'
+    t[0] = LlamadaFuncion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_expresion_list(t):
+    '''expresion_list : expresion_list COMA expresion
+                      | expresion'''
+    if len(t) != 2:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[1]]
+
 def p_expresion_primitivos(t):
     '''expresion : ENTERO
                  | DECIMAL
@@ -202,6 +262,10 @@ def p_expresion_incdec(t):
     else:
         decrementable = Primitivo(Tipo.NUMBER, 1, t.lineno(2), find_column(input, t.slice[2]))
         t[0] = Aritmetica(t[1], decrementable, TipoOperacionAritmetica.RESTA, t.lineno(2), find_column(input, t.slice[2]))
+
+def p_expresion_func(t):
+    'expresion : llamada_func'
+    t[0] = t[1]
 
 def p_tipo(t):
     '''tipo : RNUMBER
