@@ -13,29 +13,35 @@ class If(Instruccion):
 
     def ejecutar(self, env):
         condicionIf = self.condicion.ejecutar(env)
+        if isinstance(condicionIf, Error): return condicionIf
         # entorno = TablaSimbolos(env)
 
         if condicionIf.tipo != Tipo.BOOL:
             return Error('Semántico', 'La condición no es de tipo Boolean', self.linea, self.columna)
         
-        if condicionIf.valor:
+        if condicionIf.valor == 'true':
             entorno = TablaSimbolos(env)
             for instruccion in self.bloqIf:
                 resultado = instruccion.ejecutar(entorno)
+                if isinstance(resultado, Error): return resultado
+
                 if isinstance(resultado, Retorno):
                     if resultado.tipo == Tipo.RETURNST or resultado.tipo == Tipo.BREAKST or resultado.tipo == Tipo.CONTIST:
                         return resultado
-                # TODO: FALTA VERIFICAR ERROR
         elif self.bloqElse is not None:
             entorno = TablaSimbolos(env)
             for instruccion in self.bloqElse:
                 resultado = instruccion.ejecutar(entorno)
+                if isinstance(resultado, Error): return resultado
+
                 if isinstance(resultado, Retorno):
                     if resultado.tipo == Tipo.RETURNST or resultado.tipo == Tipo.BREAKST or resultado.tipo == Tipo.CONTIST:
                         return resultado
         elif self.bloqElseIf is not None:
             # Se interpreta el objeto que se manda, ya que desde la gramática se manda un objeto If
             resultado = self.bloqElseIf.ejecutar(env)
+            if isinstance(resultado, Error): return resultado
+            
             if isinstance(resultado, Retorno):
                     if resultado.tipo == Tipo.RETURNST or resultado.tipo == Tipo.BREAKST or resultado.tipo == Tipo.CONTIST:
                         return resultado

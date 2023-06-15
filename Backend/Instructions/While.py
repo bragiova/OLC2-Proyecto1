@@ -12,13 +12,16 @@ class While(Instruccion):
 
     def ejecutar(self, env):
         condicion = self.condicion.ejecutar(env)
-        entorno = TablaSimbolos(env)
+        if isinstance(condicion, Error): return condicion
+
+        # entorno = TablaSimbolos(env)
         flagBreakContinue = False
 
         if condicion.tipo != Tipo.BOOL:
             return Error('Semántico', 'Tipo de dato en la condición no es Boolean', self.linea, self.columna)
         
-        while condicion.valor:
+        while condicion.valor == 'true':
+            entorno = TablaSimbolos(env)
             for instruccion in self.bloqInstrucciones:
                 resultado = instruccion.ejecutar(entorno)
 
@@ -34,6 +37,7 @@ class While(Instruccion):
                     return resultado
 
             condicion = self.condicion.ejecutar(env)
+            if isinstance(condicion, Error): return condicion
 
             if condicion.tipo != Tipo.BOOL:
                 return Error('Semántico', 'Tipo de dato en la condición no es Boolean', self.linea, self.columna)

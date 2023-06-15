@@ -17,14 +17,16 @@ class Declaracion(Instruccion):
         if valorVar is not None:
             valorVar = self.valor.ejecutar(env)
         else:
-            valorVar = Retorno(Tipo.NULL, None)
+            if self.tipo is not None:
+                valorVar = self.setValorDefecto(self.tipo)
+            else:
+                self.tipo = Tipo.ANY
+                valorVar = Retorno(Tipo.ANY, None)
 
-        # TODO: VER TIPOS NULOS
-
-        if self.tipo == Tipo.ANY:
+        if self.tipo == Tipo.ANY and self.tipo != valorVar.tipo:
             valorVar.tipo = Tipo.ANY
 
-        if self.tipo == valorVar.tipo or valorVar.tipo == Tipo.NULL:
+        if self.tipo == valorVar.tipo:
             nuevoSimbolo = Simbolo(self.ident, self.tipo, valorVar.valor, self.linea, self.columna)
 
             if env.existeSimbEnActual(self.ident):
@@ -33,6 +35,16 @@ class Declaracion(Instruccion):
             env.guardarVar(nuevoSimbolo)
         else:
             return Error('Semántico', 'El tipo de dato de la variable es distinto a la asignación', self.linea, self.columna)
+        
+    def setValorDefecto(self, tipo):
+        if tipo == Tipo.NUMBER:
+            return Retorno(Tipo.NUMBER, 0)
+        elif tipo == Tipo.STRING:
+            return Retorno(Tipo.STRING, "")
+        elif tipo == Tipo.BOOL:
+            return Retorno(Tipo.BOOL, 'false')
+        elif tipo == Tipo.ANY:
+            return Retorno(Tipo.ANY, None)
 
 
 

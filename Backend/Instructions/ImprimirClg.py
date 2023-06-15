@@ -1,5 +1,7 @@
 
 from Abstract.Instruccion import Instruccion
+from Abstract.Retorno import *
+from Sym.Error import Error
 
 class ImprimirClg(Instruccion):
     def __init__(self, expresion, linea, columna):
@@ -7,6 +9,12 @@ class ImprimirClg(Instruccion):
         super().__init__(linea, columna)
 
     def ejecutar(self, env):
-        expre = self.expresion.ejecutar(env)
-        print(expre.valor)
-        return expre
+        txtImprimir = ''
+        for expre in self.expresion:
+            expreVal = expre.ejecutar(env)
+            if isinstance(expreVal, Error): return expreVal
+            
+            txtImprimir += str(expreVal.valor)
+        
+        print(txtImprimir)
+        return Retorno(Tipo.STRING, txtImprimir)

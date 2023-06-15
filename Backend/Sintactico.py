@@ -75,7 +75,7 @@ def p_instruccion_t(t):
 
 # console.log
 def p_console_inst(t):
-    'console_inst : RCONSOLE PUNTO RLOG PARA expresion PARC'
+    'console_inst : RCONSOLE PUNTO RLOG PARA expresion_list PARC'
     t[0] = ImprimirClg(t[5], t.lineno(1), find_column(input, t.slice[1]))
 
 # Declaración
@@ -191,6 +191,9 @@ def p_expresion_aritmetica(t):
         t[0] = Aritmetica(t[1], t[3], TipoOperacionAritmetica.MOD, t.lineno(2), find_column(input, t.slice[2]))
     elif t[2] == '^': 
         t[0] = Aritmetica(t[1], t[3], TipoOperacionAritmetica.POT, t.lineno(2), find_column(input, t.slice[2]))
+    elif t[1] == '-':
+        valorNeg = Primitivo(Tipo.NUMBER, 0, t.lineno(1), find_column(input, t.slice[1]))
+        t[0] = Aritmetica(valorNeg, t[2], TipoOperacionAritmetica.RESTA, t.lineno(1), find_column(input, t.slice[1]))
 
 def p_expresion_logica(t):
     '''expresion : expresion OR expresion
@@ -252,7 +255,8 @@ def p_expresion_primitivos(t):
                  | ID
                  | CADENA
                  | RTRUE
-                 | RFALSE'''
+                 | RFALSE
+                 | RNULL'''
     
     if t.slice[1].type == 'ENTERO':
         t[0] = Primitivo(Tipo.NUMBER, t[1], t.lineno(1), find_column(input, t.slice[1]))
@@ -266,6 +270,8 @@ def p_expresion_primitivos(t):
         t[0] = Primitivo(Tipo.BOOL, t[1], t.lineno(1), find_column(input, t.slice[1]))
     elif t.slice[1].type == 'RFALSE':
         t[0] = Primitivo(Tipo.BOOL, t[1], t.lineno(1), find_column(input, t.slice[1]))
+    elif t.slice[1].type == 'RNULL':
+        t[0] = Primitivo(Tipo.NULL, t[1], t.lineno(1), find_column(input, t.slice[1]))
     
 def p_expresion_incdec(t):
     '''expresion : expresion MAS MAS

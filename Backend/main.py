@@ -7,7 +7,8 @@ def main():
     
     absolutepath = os.path.abspath(__file__)
     fileDirectory = os.path.dirname(absolutepath)
-    f = open(os.path.join(fileDirectory, 'archivoPrueba.txt'), 'r')
+    # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
+    f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'), 'r')
     s = f.read()
     # s = '''
     #     // prueba comentario

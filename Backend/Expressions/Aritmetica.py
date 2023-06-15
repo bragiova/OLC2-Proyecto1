@@ -2,7 +2,7 @@
 from Abstract.Expresion import Expresion
 from Abstract.Retorno import *
 from enum import Enum
-
+from Sym.Error import Error
 
 class TipoOperacionAritmetica(Enum):
     SUMA = 1
@@ -22,7 +22,9 @@ class Aritmetica(Expresion):
     def ejecutar(self, env):
         # Se ejecuta el método de Primitivo, que obtiene el valor del operando
         opIzq = self.opIzq.ejecutar(env)
+        if isinstance(opIzq, Error): return opIzq
         opDer = self.opDer.ejecutar(env)
+        if isinstance(opDer, Error): return opDer
         
         if opIzq.tipo == Tipo.RETURNST:
             if isinstance(opIzq.valor, int) or isinstance(opIzq.valor, float):
@@ -38,48 +40,58 @@ class Aritmetica(Expresion):
 
         # Se inicializa el objeto Resultado con el tipo Number por defecto
         resultado = Retorno(Tipo.NUMBER, 0)
-        esNumber = (opIzq.tipo == Tipo.NUMBER and opDer.tipo == Tipo.NUMBER)
+        esPermitido = self.esTipoPermitido(opIzq.tipo, opDer.tipo)
 
         if self.operacion == TipoOperacionAritmetica.SUMA:
-            if esNumber or (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING):
+            if esPermitido or (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING):
                 resultado.valor = opIzq.valor + opDer.valor
                 # Se cambia tipo del resultado si son string operandos, operador ternario
                 resultado.tipo = (Tipo.STRING if (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING) else resultado.tipo)
             else:
                 print('Error en tipo de dato - suma')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación suma', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.RESTA:
-            if esNumber:
+            if esPermitido:
                 resultado.valor = opIzq.valor - opDer.valor
             else:
                 print('Error en tipo de dato - resta')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación resta', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.MULTI:
-            if esNumber:
+            if esPermitido:
                 resultado.valor = opIzq.valor * opDer.valor
             else:
                 print('Error en tipo de dato - multiplicación')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación multiplicación', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.DIV:
-            if esNumber:
+            if esPermitido:
                 resultado.valor = opIzq.valor / opDer.valor
             else:
                 print('Error en tipo de dato - división')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación división', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.MOD:
-            if esNumber:
+            if esPermitido:
                 resultado.valor = opIzq.valor % opDer.valor
             else:
                 print('Error en tipo de dato - módulo')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación módulo', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.POT:
-            if esNumber:
+            if esPermitido:
                 resultado.valor = opIzq.valor ** opDer.valor
             else:
                 print('Error en tipo de dato - potencia')
-                resultado.valor = ''
+                return Error('Semántico', 'El tipo de dato no es permitido para la operación potencia', self.linea, self.columna)
         else:
             print('Error operacion')
-            resultado.valor = ''
+            return Error('Semántico', 'El tipo de operación no es permitido para operaciones aritméticas', self.linea, self.columna)
         
         return resultado
+    
+    def esTipoPermitido(self, tipoIzq, tipoDer):
+        if (tipoIzq == Tipo.NUMBER and tipoDer == Tipo.NUMBER):
+            return True
+        
+        if (tipoIzq == Tipo.STRING and tipoDer == Tipo.STRING):
+            return True
+        
+        if (tipoIzq == Tipo.ANY or tipoDer == Tipo.ANY):
+            return True

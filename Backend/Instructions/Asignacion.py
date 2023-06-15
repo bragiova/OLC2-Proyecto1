@@ -12,9 +12,14 @@ class Asignacion(Instruccion):
     def ejecutar(self, env):
         simbVar = env.getSimbolo(self.ident)
 
-        # TODO: FALTA VERIFICAR TIPOS
         if simbVar is not None:
             valVariable = self.valor.ejecutar(env)
+            if isinstance(valVariable, Error): return valVariable
+
+            if (simbVar.getTipo() != valVariable.tipo) and simbVar.getTipo() != Tipo.ANY:
+                print('Error', 'El valor a asignar no es del mismo tipo que la variable')
+                return Error('Semántico', 'El valor a asignar no es del mismo tipo que la variable', self.linea, self.columna)
+
             simbActualizado = Simbolo(simbVar.getId(), simbVar.getTipo(), valVariable.valor, self.linea, self.columna)
             env.updateTabla(simbActualizado)
         else:

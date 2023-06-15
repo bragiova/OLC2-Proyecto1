@@ -1,5 +1,6 @@
 from Abstract.Instruccion import Instruccion
 from Abstract.Retorno import *
+from Sym.Error import Error
 
 class Return(Instruccion):
     def __init__(self, expresion, linea, columna):
@@ -11,6 +12,8 @@ class Return(Instruccion):
 
         if self.expresion is not None:
             valExp = self.expresion.ejecutar(env)
+            if isinstance(valExp, Error): return valExp
+
             result.valor = valExp.valor
         
         return result
