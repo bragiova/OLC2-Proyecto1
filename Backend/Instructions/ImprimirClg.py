@@ -14,7 +14,7 @@ class ImprimirClg(Instruccion):
             expreVal = expre.ejecutar(env)
             if isinstance(expreVal, Error): return expreVal
             
-            txtImprimir += str(expreVal.valor)
+            txtImprimir += str(expreVal.valor) + ' '
         
         print(txtImprimir)
         return Retorno(Tipo.STRING, txtImprimir)

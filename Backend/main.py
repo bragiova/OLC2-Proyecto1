@@ -9,6 +9,8 @@ def main():
     fileDirectory = os.path.dirname(absolutepath)
     # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
     s = f.read()
     # s = '''
     #     // prueba comentario

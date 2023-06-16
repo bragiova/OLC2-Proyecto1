@@ -19,6 +19,13 @@ from Expressions.LlamadaFuncion import LlamadaFuncion
 from Instructions.Return import Return
 from Instructions.Break import Break
 from Instructions.Continue import Continue
+from Nativas.UpperCase import UpperCase
+from Nativas.LowerCase import LowerCase
+from Nativas.String import ToString
+from Nativas.Fixed import ToFixed
+from Nativas.Exponential import ToExponential
+from Nativas.TypeOf import TypeOf
+from Nativas.Length import Length
 
 precedence = (
     ('left', 'OR'),
@@ -287,6 +294,10 @@ def p_expresion_func(t):
     'expresion : llamada_func'
     t[0] = t[1]
 
+def p_expresion_nativas(t):
+    'expresion : nativa_exp'
+    t[0] = t[1]
+
 def p_tipo(t):
     '''tipo : RNUMBER
             | RSTRING
@@ -300,6 +311,32 @@ def p_tipo(t):
         t[0] = Tipo.BOOL
     elif t.slice[1].type == 'RANY':
         t[0] = Tipo.ANY
+
+def p_nativas(t):
+    '''nativa_exp : expresion PUNTO RUPCASE PARA PARC
+                  | expresion PUNTO RLOWCASE PARA PARC
+                  | expresion PUNTO RTOSTRING PARA PARC
+                  | RSTRINGN PARA expresion PARC
+                  | expresion PUNTO RFIXED PARA expresion PARC
+                  | expresion PUNTO REXPONENTIAL PARA expresion PARC
+                  | RTYPEOF PARA expresion PARC
+                  | expresion PUNTO RLENGTH PARA PARC'''
+    if t.slice[3].type == 'RUPCASE':
+        t[0] = UpperCase(t[1], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[3].type == 'RLOWCASE':
+        t[0] = LowerCase(t[1], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[3].type == 'RTOSTRING':
+        t[0] = ToString(t[1], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[1].type == 'RSTRINGN':
+        t[0] = ToString(t[3], t.lineno(1), find_column(input, t.slice[1]))
+    elif t.slice[3].type == 'RFIXED':
+        t[0] = ToFixed(t[1], t[5], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[3].type == 'REXPONENTIAL':
+        t[0] = ToExponential(t[1], t[5], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[1].type == 'RTYPEOF':
+        t[0] = TypeOf(t[3], t.lineno(1), find_column(input, t.slice[1]))
+    elif t.slice[3].type == 'RLENGTH':
+        t[0] = Length(t[1], t.lineno(3), find_column(input, t.slice[3]))
 
 def p_error(t):
     print(" Error sintáctico en '%s'" % t.value)

@@ -9,6 +9,7 @@ reservadas = {
     'number' : 'RNUMBER',
     'boolean' : 'RBOOLEAN',
     'string' : 'RSTRING',
+    'String' : 'RSTRINGN',
     'any' : 'RANY',
     'interface' : 'RINTERFACE',
     'function' : 'RFUNCTION',
@@ -33,6 +34,8 @@ reservadas = {
     'return' : 'RRETURN',
     'true' : 'RTRUE',
     'false' : 'RFALSE',
+    'typeof' : 'RTYPEOF',
+    'length' : 'RLENGTH',
 }
 
 tokens = [
