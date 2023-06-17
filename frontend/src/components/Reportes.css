@@ -1,0 +1,10 @@
+.centro {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+
+.titulo {
+    text-align: center;
+}
