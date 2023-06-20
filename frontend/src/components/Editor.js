@@ -8,9 +8,20 @@ import { sublime, abcdef, xcodeDark } from '@uiw/codemirror-themes-all';
 export function Editor(){
     const [estado, setEstado] = useState({ editor: '', consola: '', c3d: ''});
 
-    const interpretarEntrada = () => {
-        setEstado({...estado, consola: estado.consola + 'prueba\n'})
-        console.log(estado);
+    const enviarEntrada = () => {
+        if (estado.editor !== ''){
+            const codigo = { 'codigo' : estado.editor };
+            fetch('http://localhost:3000/entrada', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(codigo)
+            })
+            .then(async (resp) => {
+                const jsonRespuesta = await resp.json();
+                console.log(jsonRespuesta);
+                setEstado({ ...estado, consola: jsonRespuesta.consola });
+            });
+        }
     }
 
     return(
@@ -19,7 +30,7 @@ export function Editor(){
                 <h1 style={ {textAlign: 'center'}}>Editor</h1>
             </div>
             <div>
-                <button className='btn btn-outline-success btn-lg m-2' onClick={() => interpretarEntrada()}>Interpretar</button>
+                <button className='btn btn-outline-success btn-lg m-2' onClick={() => enviarEntrada()}>Interpretar</button>
                 <button className='btn btn-outline-info btn-lg m-2' >Compilar</button>
             </div>
             <br />
@@ -29,7 +40,7 @@ export function Editor(){
                     <h3>Entrada</h3>
                     <br/>
                     <CodeMirror
-                        value=""
+                        value={estado.editor}
                         height="500px"
                         theme={sublime}
                         extensions={[javascript({ typescript: true })]}

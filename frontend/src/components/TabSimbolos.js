@@ -1,5 +1,5 @@
 
-export function TablaSimbolos() {
+export function TablaSimbolos(props) {
     return(
         <div className="container">
             <div>
@@ -19,30 +19,18 @@ export function TablaSimbolos() {
                         </tr>
                     </thead>
                     <tbody style={{ textAlign: 'center' }} className="table-group-divider">
-                        <tr>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                        </tr>
-                        <tr>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                        </tr>
-                        <tr>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                            <td>prueba</td>
-                        </tr>
+                        { props.rep.map(
+                            element => 
+                            <tr key={element.numero}>
+                                <td>{element.numero}</td>
+                                <td>{element.id}</td>
+                                <td>{element.tipo}</td>
+                                <td>{'prueba'}</td>
+                                <td>{element.linea}</td>
+                                <td>{element.colum}</td>
+                            </tr>
+                        )}
+                        
                     </tbody>
                 </table>
             </div>

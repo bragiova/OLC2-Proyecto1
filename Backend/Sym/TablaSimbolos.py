@@ -14,11 +14,13 @@ class TablaSimbolos:
     # Se guardan las variables en la tabla de símbolos
     def guardarVar(self, simbolo):
         self.tablaS[simbolo.getId()] = simbolo
+        TablaSimbolos.variables[simbolo.getId()] = simbolo
 
     # Se guardan las funciones en la tabla de símbolos
     def guardarFuncion(self, ident, objFuncion):
         # Se recibirá un objeto de tipo Función
         self.tablaF[ident] = objFuncion
+        TablaSimbolos.funciones[ident] = objFuncion
 
     # Se obtiene un símbolo almacenado en la tabla de símbolos
     def getSimbolo(self, id):
@@ -43,6 +45,7 @@ class TablaSimbolos:
         while envActual != None:
             if simbolo.getId() in envActual.tablaS:
                 envActual.tablaS[simbolo.getId()].setValor(simbolo.getValor())
+                TablaSimbolos.variables[simbolo.getId()] = simbolo
                 return None
             else:
                 envActual = envActual.envAnterior
