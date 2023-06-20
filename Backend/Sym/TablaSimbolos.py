@@ -2,6 +2,10 @@
 from Sym.Error import Error
 
 class TablaSimbolos:
+    errores = []
+    variables = {}
+    funciones = {}
+
     def __init__(self, envAnterior = None):
         self.tablaS = {}
         self.tablaF = {}

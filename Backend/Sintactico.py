@@ -1,7 +1,7 @@
 
 import ply.yacc as yacc
 import ply.lex as lex
-from Lexico import tokens, lexer, errores, find_column
+from Lexico import tokens, lexer, find_column
 from Expressions.Aritmetica import *
 from Expressions.Primitivo import Primitivo
 from Instructions.ImprimirClg import ImprimirClg
@@ -26,6 +26,7 @@ from Nativas.Fixed import ToFixed
 from Nativas.Exponential import ToExponential
 from Nativas.TypeOf import TypeOf
 from Nativas.Length import Length
+from Sym.TablaSimbolos import *
 
 precedence = (
     ('left', 'OR'),
@@ -339,16 +340,24 @@ def p_nativas(t):
         t[0] = Length(t[1], t.lineno(3), find_column(input, t.slice[3]))
 
 def p_error(t):
-    print(" Error sintáctico en '%s'" % t.value)
-
+    
+    if t is not None:
+        print(" Error sintáctico en '%s'" % t.value)
+        if t.type == 'error':
+            errLexSin = Error('Léxico', 'Caracter ' + str(t.value)[0] + ' no reconocido en el lenguaje', t.lexer.lineno, find_column(input, t))
+        else:
+            errLexSin = Error('Sintáctico', 'Error sintáctico en ' + str(t.value), t.lexer.lineno, find_column(input, t))
+        parser.errok()
+        TablaSimbolos.errores.append(errLexSin)
+        
 #parser = yacc.yacc()
 
 input = ''
 
 def parse(inp):
-    global errores
+    # global errores
     global parser
-    errores = []
+    # errores = []
     parser = yacc.yacc()
     global input
     input = inp

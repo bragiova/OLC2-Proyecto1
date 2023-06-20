@@ -1,8 +1,10 @@
 
 import ply.lex as lex
 import sys
+# from Sym.Error import Error
+# from Sym.TablaSimbolos import *
 
-errores = []
+# errores = []
 
 reservadas = {
     'null' : 'RNULL',
@@ -149,11 +151,13 @@ t_ignore = " \t\r"
 
 def t_newline(t):
     r'\n+'
-    t.lexer.lineno += t.value.count("\n")
+    t.lexer.lineno += t.value.count('\n')
 
 #Error
 def t_error(t):
-    #errores.append(Excepcion("Lexico", "Error Lexico" + t.value[0], t.lexer.lineno, find_column(input, t)))
+    print('lexico ' + t.value[0], input)
+    # errLexico = Error('Léxico', 'Caracter ' + t.value[0] + ' no reconocido en el lenguaje', t.lexer.lineno, find_column(input, t))
+    # TablaSimbolos.errores.append(errLexico)
     t.lexer.skip(1)
 
 def find_column(inp, tk):

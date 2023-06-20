@@ -16,6 +16,7 @@ class Declaracion(Instruccion):
 
         if valorVar is not None:
             valorVar = self.valor.ejecutar(env)
+            if isinstance(valorVar, Error): return valorVar
         else:
             if self.tipo is not None:
                 valorVar = self.setValorDefecto(self.tipo)
