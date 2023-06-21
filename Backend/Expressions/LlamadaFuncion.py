@@ -37,4 +37,16 @@ class LlamadaFuncion(Expresion):
                     if resultado.tipo == Tipo.RETURNST:
                         break
             
+            if resultado is not None and isinstance(resultado, Retorno):
+                if resultado.tipo == Tipo.RETURNST:
+                    if isinstance(resultado.valor, int) or isinstance(resultado.valor, float):
+                        resultado.tipo = Tipo.NUMBER
+                    elif isinstance(resultado.valor, str):
+                        resultado.tipo = Tipo.STRING
+                    elif resultado.valor == 'true' or resultado.valor == 'false':
+                        resultado.tipo = Tipo.BOOL
+
+            if funcion.tipoFuncion != Tipo.ANY and resultado.tipo != funcion.tipoFuncion:
+                return Error('Semántico', 'El tipo del valor de retorno no coincide con el tipo de la función', self.linea, self.columna)
+
             return resultado
