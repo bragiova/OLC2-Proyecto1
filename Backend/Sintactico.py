@@ -95,6 +95,14 @@ def p_declaracion_inst(t):
     else:
         t[0] = Declaracion(t[2], t[6], t[4], t.lineno(1), find_column(input, t.slice[1]))
 
+def p_declaracion_array(t):
+    '''declaracion_inst : RLET ID DPUNTOS tipo CORA CORC IGUAL expresion
+                        | RLET ID DPUNTOS tipo CORA CORC'''
+    if len(t) == 7:
+        t[0] = Declaracion(t[2], None, t[4], t.lineno(1), find_column(input, t.slice[1]), True)
+    else:
+        t[0] = Declaracion(t[2], t[8], t[4], t.lineno(1), find_column(input, t.slice[1]), True)
+
 def p_declaracion_sin_tipo(t):
     '''declaracion_inst : RLET ID IGUAL expresion
                         | RLET ID'''
@@ -298,6 +306,10 @@ def p_expresion_func(t):
 def p_expresion_nativas(t):
     'expresion : nativa_exp'
     t[0] = t[1]
+
+def p_expresion_arrays(t):
+    'expresion : CORA expresion_list CORC'
+    t[0] = t[2]
 
 def p_tipo(t):
     '''tipo : RNUMBER

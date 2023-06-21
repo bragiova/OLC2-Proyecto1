@@ -5,38 +5,66 @@ from Sym.Simbolo import Simbolo
 from Sym.Error import Error
 
 class Declaracion(Instruccion):
-    def __init__(self, ident, valor, tipo, linea, columna):
+    def __init__(self, ident, valor, tipo, linea, columna, esArray = False):
         super().__init__(linea, columna)
         self.ident = ident
         self.valor = valor
         self.tipo = tipo
+        self.esArray = esArray
 
     def ejecutar(self, env):
         valorVar = self.valor
 
-        if valorVar is not None:
-            valorVar = self.valor.ejecutar(env)
-            if isinstance(valorVar, Error): return valorVar
+        if self.esArray:
+            return self.ejecutarArray(env)
         else:
-            if self.tipo is not None:
-                valorVar = self.setValorDefecto(self.tipo)
+            if valorVar is not None:
+                valorVar = self.valor.ejecutar(env)
+                if isinstance(valorVar, Error): return valorVar
             else:
-                self.tipo = Tipo.ANY
-                valorVar = Retorno(Tipo.ANY, None)
+                if self.tipo is not None:
+                    valorVar = self.setValorDefecto(self.tipo)
+                else:
+                    self.tipo = Tipo.ANY
+                    valorVar = Retorno(Tipo.ANY, None)
 
-        if self.tipo == Tipo.ANY and self.tipo != valorVar.tipo:
-            valorVar.tipo = Tipo.ANY
+            if self.tipo == Tipo.ANY and self.tipo != valorVar.tipo:
+                valorVar.tipo = Tipo.ANY
 
-        if self.tipo == valorVar.tipo:
-            nuevoSimbolo = Simbolo(self.ident, self.tipo, valorVar.valor, self.linea, self.columna)
+            if self.tipo == valorVar.tipo:
+                nuevoSimbolo = Simbolo(self.ident, self.tipo, valorVar.valor, self.linea, self.columna)
+
+                if env.existeSimbEnActual(self.ident):
+                    return Error('Semántico', 'Variable ya está declarada', self.linea, self.columna)
+                
+                env.guardarVar(nuevoSimbolo)
+            else:
+                return Error('Semántico', 'El tipo de dato de la variable es distinto a la asignación', self.linea, self.columna)
+        
+    def ejecutarArray(self, env):
+        listValArray = self.valor
+        listObjArray = []
+        esMismoTipo = True
+
+        if listValArray is not None:
+            for valorArray in listValArray:
+                valItem = valorArray.ejecutar(env)
+                if isinstance(valItem, Error): return valItem
+
+                if valItem is not None and valItem.tipo != self.tipo:
+                    esMismoTipo = False
+                # se llena la lista con objetos tipo Retorno [Retorno(Tipo.String, 'hola'), Retorno(Tipo.String, 'hola'), ...]
+                listObjArray.append(valItem)
+        
+        if esMismoTipo:
+            array = Simbolo(self.ident, Tipo.ARREGLO, listObjArray, self.linea, self.columna, self.tipo)
 
             if env.existeSimbEnActual(self.ident):
                 return Error('Semántico', 'Variable ya está declarada', self.linea, self.columna)
-            
-            env.guardarVar(nuevoSimbolo)
+            env.guardarVar(array)
         else:
-            return Error('Semántico', 'El tipo de dato de la variable es distinto a la asignación', self.linea, self.columna)
-        
+            return Error('Semántico', 'El tipo de dato del arreglo es distinto a la asignación', self.linea, self.columna)
+
     def setValorDefecto(self, tipo):
         if tipo == Tipo.NUMBER:
             return Retorno(Tipo.NUMBER, 0)

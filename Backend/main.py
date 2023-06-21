@@ -1,4 +1,5 @@
 import os
+import sys
 from flask import Flask, request
 import json
 from flask_cors import CORS
@@ -10,6 +11,7 @@ from Sym.TablaSimbolos import *
 from Sym.Error import Error
 from Instructions.ImprimirClg import ImprimirClg
 from Abstract.Retorno import Tipo
+sys.setrecursionlimit(3000)
 
 app = Flask(__name__)
 CORS(app)
@@ -78,9 +80,9 @@ if __name__ == '__main__':
 #     for err in TablaSimbolos.errores:
 #         print(err.tipoError, err.desc, err.linea, err.columna)
 
-# def pruebaSimb():
-#     for simb in TablaSimbolos.variables.keys():
-#         print(TablaSimbolos.variables[simb].getId(), TablaSimbolos.variables[simb].getValor())
+# # def pruebaSimb():
+# #     for simb in TablaSimbolos.variables.keys():
+# #         print(TablaSimbolos.variables[simb].getId(), TablaSimbolos.variables[simb].getValor())
 
 # def main():
 #     env = TablaSimbolos()
@@ -88,9 +90,11 @@ if __name__ == '__main__':
 #     absolutepath = os.path.abspath(__file__)
 #     fileDirectory = os.path.dirname(absolutepath)
 #     # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
-#     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'), 'r')
+#     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesbasicas.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesrecursivas.ts'), 'r')
 #     s = f.read()
 #     # s = '''
 #     #     // prueba comentario
@@ -111,7 +115,7 @@ if __name__ == '__main__':
 #         if isinstance(valRet, Error): TablaSimbolos.errores.append(valRet)
 
 #     pruebaError()
-#     pruebaSimb()
+#     # pruebaSimb()
 #     # print(ImprimirClg.salidaConsola)
 
 # main()

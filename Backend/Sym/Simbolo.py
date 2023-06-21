@@ -1,11 +1,12 @@
 
 class Simbolo:
-    def __init__(self, ident, tipo, valor, linea, columna):
+    def __init__(self, ident, tipo, valor, linea, columna, tipoArray = None):
         self.ident = ident
         self.tipo = tipo
         self.valor = valor
         self.linea = linea
         self.columna = columna
+        self.tipoArray = tipoArray
     
     def setId(self, id):
         self.ident = id
