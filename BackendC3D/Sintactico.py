@@ -137,12 +137,20 @@ def p_while_inst(t):
 
 # Funciones
 def p_funcion_inst(t):
-    'funcion_inst : RFUNCTION ID PARA PARC LLAVEA instrucciones LLAVEC'
-    t[0] = Funcion(t[2], [], t[6], t.lineno(1), find_column(input, t.slice[1]))
+    '''funcion_inst : RFUNCTION ID PARA PARC LLAVEA instrucciones LLAVEC
+                    | RFUNCTION ID PARA PARC DPUNTOS tipo LLAVEA instrucciones LLAVEC'''
+    if len(t) == 8:
+        t[0] = Funcion(t[2], [], t[6], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] = Funcion(t[2], [], t[8], t[6], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_funcion_param(t):
-    'funcion_inst : RFUNCTION ID PARA list_params PARC LLAVEA instrucciones LLAVEC'
-    t[0] = Funcion(t[2], t[4], t[7], t.lineno(1), find_column(input, t.slice[1]))
+    '''funcion_inst : RFUNCTION ID PARA list_params PARC LLAVEA instrucciones LLAVEC
+                    | RFUNCTION ID PARA list_params PARC DPUNTOS tipo LLAVEA instrucciones LLAVEC'''
+    if len(t) == 9:
+        t[0] = Funcion(t[2], t[4], t[7], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
+    else:
+        t[0] = Funcion(t[2], t[4], t[9], t[7], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_list_params(t):
     '''list_params : list_params COMA parametro

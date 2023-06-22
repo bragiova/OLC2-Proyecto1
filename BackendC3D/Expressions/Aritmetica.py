@@ -85,9 +85,9 @@ class Aritmetica(Expresion):
                     generador.agregarIf(right_swaper, '-1', '!=', right_label)
                     generador.setHeap('H', '-1')
                     generador.nextHeap()
-                # Se cambia tipo del resultado si son string operandos, operador ternario
-                resultado.tipo = (Tipo.STRING if (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING) else resultado.tipo)
-                resultado.esTemp = False
+                    # Se cambia tipo del resultado si son string operandos, operador ternario
+                    resultado.tipo = (Tipo.STRING if (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING) else resultado.tipo)
+                    resultado.esTemp = False
             else:
                 print('Error en tipo de dato - suma')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación suma', self.linea, self.columna)

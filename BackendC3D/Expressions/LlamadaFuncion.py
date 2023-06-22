@@ -28,16 +28,16 @@ class LlamadaFuncion(Expresion):
 
             # Recorremos el arreglo de parámetros
             for i, param in enumerate(self.listaParams):
-                a = param.compilar(env)
-                if isinstance(a, Error): return a
+                paramArr = param.compilar(env)
+                if isinstance(paramArr, Error): return paramArr
 
                 if isinstance(param, LlamadaFuncion):
                     self.guardarTemps(generador, env, temporales)
-                    paramValores.append(a)
+                    paramValores.append(paramArr)
                     self.recuperarTemps(generador, env, temporales)
                 else:
-                    paramValores.append(a)
-                    temporales.append(a.valor)
+                    paramValores.append(paramArr)
+                    temporales.append(paramArr.valor)
             
             temp = generador.agregarTemp()
             generador.agregarExp(temp, 'P', size + 1, '+')
@@ -57,22 +57,22 @@ class LlamadaFuncion(Expresion):
             generador.agregarComentario(f"Fin de la llamada a la funcion {self.ident}")
             generador.agregarEspacio()
 
-            return Retorno(Tipo.STRING, temp, True)
+            return Retorno(funcion.tipoFuncion, temp, True)
         
     def guardarTemps(self, generator, env, tmp2):
-        generator.addComment('Guardado de temporales')
-        tmp = generator.addTemp()
+        generator.agregarComentario('Guardado de temporales')
+        tmp = generator.agregarTemp()
         for tmp1 in tmp2:
-            generator.addExp(tmp, 'P', env.size, '+')
+            generator.agregarExp(tmp, 'P', env.size, '+')
             generator.setStack(tmp,tmp1)
             env.size += 1
-        generator.addComment('Fin de guardado de temporales')
+        generator.agregarComentario('Fin de guardado de temporales')
     
     def recuperarTemps(self, generator, env, tmp2):
-        generator.addComment('Recuperacion de Temporales')
-        tmp = generator.addTemp()
+        generator.agregarComentario('Recuperacion de Temporales')
+        tmp = generator.agregarTemp()
         for tmp1 in tmp2:
             env.size -= 1
-            generator.addExp(tmp, 'P', env.size, '+')
+            generator.agregarExp(tmp, 'P', env.size, '+')
             generator.getStack(tmp1,tmp)
-        generator.addComment('Fin de recuperacion de temporales')
+        generator.agregarComentario('Fin de recuperacion de temporales')

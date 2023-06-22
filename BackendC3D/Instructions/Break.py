@@ -5,5 +5,5 @@ class Break(Instruccion):
     def __init__(self, linea, columna):
         super().__init__(linea, columna)
 
-    def ejecutar(self, env):
+    def compilar(self, env):
         return Retorno(Tipo.BREAKST, None)
