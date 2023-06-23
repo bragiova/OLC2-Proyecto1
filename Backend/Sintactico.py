@@ -27,6 +27,8 @@ from Nativas.Exponential import ToExponential
 from Nativas.TypeOf import TypeOf
 from Nativas.Length import Length
 from Sym.TablaSimbolos import *
+from Expressions.AccesoArray import AccesoArray
+from Instructions.AsignacionArray import AsignacionArray
 
 precedence = (
     ('left', 'OR'),
@@ -96,12 +98,12 @@ def p_declaracion_inst(t):
         t[0] = Declaracion(t[2], t[6], t[4], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_declaracion_array(t):
-    '''declaracion_inst : RLET ID DPUNTOS tipo CORA CORC IGUAL expresion
-                        | RLET ID DPUNTOS tipo CORA CORC'''
-    if len(t) == 7:
-        t[0] = Declaracion(t[2], None, t[4], t.lineno(1), find_column(input, t.slice[1]), True)
+    '''declaracion_inst : RLET ID DPUNTOS tipo dimensiones_decla IGUAL expresion
+                        | RLET ID DPUNTOS tipo dimensiones_decla'''
+    if len(t) == 6:
+        t[0] = Declaracion(t[2], None, t[4], t.lineno(1), find_column(input, t.slice[1]), True, t[5])
     else:
-        t[0] = Declaracion(t[2], t[8], t[4], t.lineno(1), find_column(input, t.slice[1]), True)
+        t[0] = Declaracion(t[2], t[7], t[4], t.lineno(1), find_column(input, t.slice[1]), True, t[5])
 
 def p_declaracion_sin_tipo(t):
     '''declaracion_inst : RLET ID IGUAL expresion
@@ -115,6 +117,29 @@ def p_declaracion_sin_tipo(t):
 def p_asignacion_inst(t):
     'asignacion_inst : ID IGUAL expresion'
     t[0] = Asignacion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_asignacion_array(t):
+    'asignacion_inst : ID dimensiones_exp IGUAL expresion'
+    t[0] = AsignacionArray(t[1], t[2], t[4], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_dimesiones_exp(t):
+    '''dimensiones_exp : dimensiones_exp CORA expresion CORC
+                       | CORA expresion CORC'''
+    if len(t) != 4:
+        t[1].append(t[3])
+        t[0] = t[1]
+    else:
+        t[0] = [t[2]]
+
+def p_dimensiones_decla(t):
+    '''dimensiones_decla : dimensiones_decla CORA CORC
+                         | CORA CORC'''
+    numDimensiones = 1
+    if len(t) != 3:
+        t[1] = numDimensiones + 1
+        t[0] = t[1]
+    else:
+        t[0] = numDimensiones
 
 # IF
 def p_if_inst(t):
@@ -176,6 +201,10 @@ def p_parametro(t):
         t[0] = ParametroFuncion(t[1], Tipo.ANY, t.lineno(1), find_column(input, t.slice[1]))
     else:
         t[0] = ParametroFuncion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
+
+def p_parametro_array(t):
+    '''parametro : ID DPUNTOS tipo dimensiones_decla'''
+    t[0] = ParametroFuncion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]), True)
 
 def p_return_inst(t):
     '''return_inst : RRETURN
@@ -264,6 +293,10 @@ def p_llamada_func_param(t):
     'llamada_func : ID PARA expresion_list PARC'
     t[0] = LlamadaFuncion(t[1], t[3], t.lineno(1), find_column(input, t.slice[1]))
 
+def p_llamada_array(t):
+    'llamada_array : ID dimensiones_exp'
+    t[0] = AccesoArray(t[1], t[2], t.lineno(1), find_column(input, t.slice[1]))
+
 def p_expresion_list(t):
     '''expresion_list : expresion_list COMA expresion
                       | expresion'''
@@ -318,6 +351,10 @@ def p_expresion_nativas(t):
 def p_expresion_arrays(t):
     'expresion : CORA expresion_list CORC'
     t[0] = t[2]
+
+def p_expresion_llamArra(t):
+    'expresion : llamada_array'
+    t[0] = t[1]
 
 def p_tipo(t):
     '''tipo : RNUMBER

@@ -5,15 +5,22 @@ from Sym.Simbolo import Simbolo
 from Sym.Error import Error
 
 class Declaracion(Instruccion):
-    def __init__(self, ident, valor, tipo, linea, columna, esArray = False):
+    def __init__(self, ident, valor, tipo, linea, columna, esArray = False, numDimensiones = 0):
         super().__init__(linea, columna)
         self.ident = ident
         self.valor = valor
         self.tipo = tipo
         self.esArray = esArray
+        self.numDimensiones = numDimensiones
 
     def ejecutar(self, env):
         valorVar = self.valor
+
+        if isinstance(valorVar, list):
+            self.esArray = True
+        
+        if self.tipo is None:
+            self.tipo = Tipo.ANY
 
         if self.esArray:
             return self.ejecutarArray(env)
@@ -22,10 +29,10 @@ class Declaracion(Instruccion):
                 valorVar = self.valor.ejecutar(env)
                 if isinstance(valorVar, Error): return valorVar
             else:
-                if self.tipo is not None:
+                if self.tipo != Tipo.ANY:
                     valorVar = self.setValorDefecto(self.tipo)
                 else:
-                    self.tipo = Tipo.ANY
+                    # self.tipo = Tipo.ANY
                     valorVar = Retorno(Tipo.ANY, None)
 
             if self.tipo == Tipo.ANY and self.tipo != valorVar.tipo:
@@ -48,13 +55,22 @@ class Declaracion(Instruccion):
 
         if listValArray is not None:
             for valorArray in listValArray:
-                valItem = valorArray.ejecutar(env)
-                if isinstance(valItem, Error): return valItem
+                if isinstance(valorArray, list):
+                    valItemList = self.getValArrayList(valorArray, env)
+                    if isinstance(valItemList, Error): return valItemList
 
-                if valItem is not None and valItem.tipo != self.tipo:
-                    esMismoTipo = False
-                # se llena la lista con objetos tipo Retorno [Retorno(Tipo.String, 'hola'), Retorno(Tipo.String, 'hola'), ...]
-                listObjArray.append(valItem)
+                    if valItemList is not None and valItemList.tipo != self.tipo:
+                        esMismoTipo = False
+                    # el valor debería de ser una lista
+                    listObjArray.append(valItemList.valor)
+                else:
+                    valItem = valorArray.ejecutar(env)
+                    if isinstance(valItem, Error): return valItem
+
+                    if valItem is not None and valItem.tipo != self.tipo and self.tipo != Tipo.ANY:
+                        esMismoTipo = False
+                    # se llena la lista con objetos tipo Retorno [Retorno(Tipo.String, 'hola'), Retorno(Tipo.String, 'hola'), ...]
+                    listObjArray.append(valItem)
         
         if esMismoTipo:
             array = Simbolo(self.ident, Tipo.ARREGLO, listObjArray, self.linea, self.columna, self.tipo)
@@ -74,6 +90,25 @@ class Declaracion(Instruccion):
             return Retorno(Tipo.BOOL, 'false')
         elif tipo == Tipo.ANY:
             return Retorno(Tipo.ANY, None)
+    
+    def getValArrayList(self, listValores, env):
+        result = Retorno(self.tipo, [])
+        listObjArray = []
+
+        for valorArray in listValores:
+            valItem = valorArray.ejecutar(env)
+            if isinstance(valItem, Error): return valItem
+
+            # se llena la lista con objetos tipo Retornos
+            listObjArray.append(valItem)
+
+            # Si el item tiene diferente tipo que la variable, se modifica el result para validarlo después desde la llamada a la función
+            if valItem is not None and valItem.tipo != self.tipo and self.tipo != Tipo.ANY:
+                result.tipo = valItem.tipo
+        
+        result.valor = listObjArray
+
+        return result
 
 
 

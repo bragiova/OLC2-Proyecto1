@@ -36,5 +36,11 @@ class Simbolo:
         self.columna = col
 
     def getColumna(self):
-        return self.columna   
+        return self.columna
+
+    def setTipoArray(self, tipo):
+        self.tipoArray = tipo
+
+    def getTipoArray(self):
+        return self.tipoArray 
 

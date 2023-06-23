@@ -115,7 +115,7 @@ def main():
         if isinstance(valRet, Error): TablaSimbolos.errores.append(valRet)
 
     pruebaError()
-    pruebaSimb()
+    # pruebaSimb()
     # print(ImprimirClg.salidaConsola)
 
 main()
