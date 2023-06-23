@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { TablaSimbolos } from './TabSimbolos';
+import { Errores } from './Errores';
 import './Reportes.css';
 
 export function Reportes() {
     const [estadoRep, setEstadoRep] = useState({ simbolos: '', errores: '', ast: ''});
     const [mostrarSimb, setMostrarSimb] = useState(false);
+    const [mostrarErr, setMostrarErr] = useState(false);
+    const [mostrarAST, setMostrarAST] = useState(false);
 
     const getTablaSimbolos = () => {
         fetch('http://localhost:3000/simbolos', {
@@ -24,6 +27,29 @@ export function Reportes() {
                 // console.log(jsonRespuesta);
                 setEstadoRep({ ...estadoRep, simbolos: jsonModificado });
                 setMostrarSimb(true);
+                setMostrarErr(false);
+            });
+    }
+
+    const getErrores = () => {
+        fetch('http://localhost:3000/errores', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(async (resp) => {
+                let i = 1;
+                const jsonRespuesta = await resp.json();
+                const jsonModificado = jsonRespuesta.errores;
+                if (jsonModificado != null){
+                    jsonModificado.forEach(element => {
+                        element['numero'] = i;
+                        i++;
+                    });
+                }
+                // console.log(jsonRespuesta);
+                setEstadoRep({ ...estadoRep, errores: jsonModificado });
+                setMostrarErr(true);
+                setMostrarSimb(false);
             });
     }
 
@@ -34,11 +60,12 @@ export function Reportes() {
             </div>
             <div className='centro'>
                 <button className='btn btn-outline-success btn-lg m-2' onClick={() => getTablaSimbolos()}>Tabla de Símbolos</button>
-                <button className='btn btn-outline-info btn-lg m-2' >Tabla de Errores</button>
+                <button className='btn btn-outline-info btn-lg m-2' onClick={() => getErrores()}>Tabla de Errores</button>
                 <button className='btn btn-outline-warning btn-lg m-2' >Árbol de Análisis Sintáctico</button>
             </div>
             <div className='centro'>
                 {(mostrarSimb) ? <TablaSimbolos rep = {estadoRep.simbolos}/> : null}
+                {(mostrarErr) ? <Errores rep = {estadoRep.errores}/> : null}
             </div>
         </div>
     )

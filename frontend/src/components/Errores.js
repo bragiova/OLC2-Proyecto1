@@ -1,9 +1,9 @@
 
-export function TablaSimbolos(props) {
+export function Errores(props) {
     return(
         <div className="container">
             <div>
-                <h1 className="titulo">Tabla de Símbolos</h1>
+                <h1 className="titulo">Tabla de Errores</h1>
                 <br/>
             </div>
             <div>
@@ -11,10 +11,9 @@ export function TablaSimbolos(props) {
                     <thead style={{ textAlign: 'center' }}>
                         <tr className="table-success">
                             <th scope="col">No.</th>
-                            <th scope="col">Nombre</th>
                             <th scope="col">Tipo</th>
-                            {/* <th scope="col">Ámbito</th> */}
-                            <th scope="col">Fila</th>
+                            <th scope="col">Descripción</th>
+                            <th scope="col">Línea</th>
                             <th scope="col">Columna</th>
                         </tr>
                     </thead>
@@ -23,10 +22,9 @@ export function TablaSimbolos(props) {
                             element => 
                             <tr key={element.numero}>
                                 <td>{element.numero}</td>
-                                <td>{element.id}</td>
                                 <td>{element.tipo}</td>
-                                {/* <td>{'prueba'}</td> */}
-                                <td>{element.linea}</td>
+                                <td>{element.desc}</td>
+                                <td>{element.fila}</td>
                                 <td>{element.colum}</td>
                             </tr>
                         )}
