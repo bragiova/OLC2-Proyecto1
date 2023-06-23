@@ -42,7 +42,8 @@ class AccesoArray(Expresion):
                             listItemArray = listItemArray.valor[indice.valor]
                     
                     # Una vez encontrado el item, se retorna
-                    if isinstance(listItemArray, Retorno):
+                    # La verificación de si es instancia de lista es solo cuando se pide el arreglo que está dentro de otro arreglo
+                    if isinstance(listItemArray, Retorno) or isinstance(listItemArray, list):
                         return listItemArray
 
                 else:

@@ -38,12 +38,13 @@ class LlamadaFuncion(Expresion):
                         break
             
             if resultado is not None and isinstance(resultado, Retorno):
+                esBoolean = (resultado.valor == 'true' or resultado.valor == 'false')
                 if resultado.tipo == Tipo.RETURNST:
                     if isinstance(resultado.valor, int) or isinstance(resultado.valor, float):
                         resultado.tipo = Tipo.NUMBER
-                    elif isinstance(resultado.valor, str):
+                    elif isinstance(resultado.valor, str) and not esBoolean:
                         resultado.tipo = Tipo.STRING
-                    elif resultado.valor == 'true' or resultado.valor == 'false':
+                    elif esBoolean:
                         resultado.tipo = Tipo.BOOL
 
             if funcion.tipoFuncion != Tipo.ANY and resultado.tipo != funcion.tipoFuncion:

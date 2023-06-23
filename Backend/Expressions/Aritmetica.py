@@ -1,4 +1,4 @@
-
+import math
 from Abstract.Expresion import Expresion
 from Abstract.Retorno import *
 from enum import Enum
@@ -64,13 +64,20 @@ class Aritmetica(Expresion):
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación multiplicación', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.DIV:
             if esPermitido:
-                resultado.valor = opIzq.valor / opDer.valor
+                if opDer.valor > 0:
+                    resultado.valor = opIzq.valor / opDer.valor
+                else:
+                    return Error('Semántico', 'No se puede realizar una división entre 0', self.linea, self.columna)
             else:
                 print('Error en tipo de dato - división')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación división', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.MOD:
             if esPermitido:
-                resultado.valor = opIzq.valor % opDer.valor
+                if opDer.valor > 0:
+                    # resultado.valor = opIzq.valor % opDer.valor
+                    resultado.valor = math.fmod(opIzq.valor, opDer.valor)
+                else:
+                    return Error('Semántico', 'No se puede realizar la operación módulo entre 0', self.linea, self.columna)
             else:
                 print('Error en tipo de dato - módulo')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación módulo', self.linea, self.columna)
