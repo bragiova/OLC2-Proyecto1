@@ -60,6 +60,11 @@ class Relacional(Expresion):
                     generador.agregarIf(val1, val2, '==', inicioLbl)
                     generador.agregarIf(val1, val2, '!=', self.falseLbl)
                     generador.agregarGoTo(self.falseLbl)
+
+                    resultado.trueLbl = self.trueLbl
+                    resultado.falseLbl = self.falseLbl
+
+                    return resultado
         else:
             goToDer = generador.nuevoLbl()
             izqTemp = generador.agregarTemp()

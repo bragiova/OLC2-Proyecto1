@@ -19,6 +19,12 @@ class GeneradorC3D:
         self.temporales = []
         # Lista nativas
         self.printString = False
+        self.compararString = False
+        self.concatString = False
+        self.upperCase = False
+        self.lowerCase = False
+        self.potencia = False
+        self.length = False
 
         self.modulo = False
 
@@ -32,11 +38,20 @@ class GeneradorC3D:
         self.enNativa = False
         self.temporales = []
         self.printString = False
+        self.compararString = False
+        self.concatString = False
+        self.upperCase = False
+        self.lowerCase = False
+        self.potencia = False
+        self.length = False
         GeneradorC3D.generator = GeneradorC3D()
 
     def getHeader(self):
         result = '/*----HEADER----*/\npackage main;\n\nimport (\n\t"fmt"\n)\n\n'
-        # TODO: importación con math
+        
+        if self.modulo:
+            result = '/*----HEADER----*/\npackage main;\n\nimport (\n\t"fmt"\n\t"math"\n)\n\n'
+
         if len(self.temporales) > 0:
             result += 'var '
             for temp in range(len(self.temporales)):
@@ -53,7 +68,7 @@ class GeneradorC3D:
     def codigoEn(self, codigo, tab='\t'):
         if self.enNativa:
             if self.nativas == '':
-                self.nativas += '/*-----NATIVES-----*/\n'
+                self.nativas += '/*-----NATIVAS-----*/\n'
             self.nativas += tab + codigo
         elif self.enFunc:
             if self.funcs == '':
@@ -100,14 +115,6 @@ class GeneradorC3D:
     
     # Expresiones
     def agregarExp(self, resultado, izq, der, ope):
-        # if izq in GeneradorC3D.dict_temp.keys() and der in GeneradorC3D.dict_temp.keys():
-        #     GeneradorC3D.dict_temp[resultado] = self.operaciones(GeneradorC3D.dict_temp[izq], GeneradorC3D.dict_temp[der], ope)
-        # elif izq in GeneradorC3D.dict_temp.keys():
-        #     GeneradorC3D.dict_temp[resultado] = self.operaciones(GeneradorC3D.dict_temp[izq], float(der), ope)
-        # elif der in GeneradorC3D.dict_temp.keys():
-        #     GeneradorC3D.dict_temp[resultado] = self.operaciones(float(izq), GeneradorC3D.dict_temp[der], ope)
-        # else:
-        #     GeneradorC3D.dict_temp[resultado] = self.operaciones(float(izq), float(der), ope)
         self.codigoEn(f'{resultado} = {izq} {ope} {der};\n')
     
     def agregarAsig(self, resultado, izq):
@@ -154,6 +161,9 @@ class GeneradorC3D:
     
     # Instrucciones
     def agregarPrint(self, tipo, valor):
+        self.codigoEn(f'fmt.Printf("%{tipo}", {valor});\n')
+    
+    def agregarPrintChar(self, tipo, valor):
         self.codigoEn(f'fmt.Printf("%{tipo}", int({valor}));\n')
 
     def imprimirFloat(self, tipo, valor):
@@ -201,9 +211,273 @@ class GeneradorC3D:
         self.getHeap(tempComp, tempH)
 
         self.agregarIf(tempComp, '-1', '==', returnLbl)
-        self.agregarPrint('c', tempComp)
+        self.agregarPrintChar('c', tempComp)
         self.agregarExp(tempH, tempH, '1', '+')
         self.agregarGoTo(compLbl)
+        self.putLbl(returnLbl)
+        self.agregarFinFunc()
+        self.enNativa = False
+    
+    def fcompararString(self):
+        if self.compararString:
+            return
+        
+        self.compararString = True
+        self.enNativa = True
+
+        self.agregarIniFunc('compararString')
+        returnLbl = self.nuevoLbl()
+
+        t2 = self.agregarTemp()
+        self.agregarExp(t2, 'P', '1', '+')
+        t3 = self.agregarTemp()
+        self.getStack(t3, t2)
+        self.agregarExp(t2, t2, '1', '+')
+        t4 = self.agregarTemp()
+        self.getStack(t4, t2)
+
+        lbl1 = self.nuevoLbl()
+        lbl2 = self.nuevoLbl()
+        lbl3 = self.nuevoLbl()
+        self.putLbl(lbl1)
+
+        t5 = self.agregarTemp()
+        self.getHeap(t5, t3)
+
+        t6 = self.agregarTemp()
+        self.getHeap(t6, t4)
+
+        self.agregarIf(t5, t6, '!=', lbl3)
+        self.agregarIf(t5, '-1', '==', lbl2)
+
+        self.agregarExp(t3, t3, '1', '+')
+        self.agregarExp(t4, t4, '1', '+')
+        self.agregarGoTo(lbl1)
+
+        self.putLbl(lbl2)
+        self.setStack('P', '1')
+        self.agregarGoTo(returnLbl)
+        self.putLbl(lbl3)
+        self.setStack('P', '0')
+        self.putLbl(returnLbl)
+        self.agregarFinFunc()
+        self.enNativa = False
+
+    def fUpperCase(self):
+        if self.upperCase:
+            return
+        
+        self.upperCase = True
+        self.enNativa = True
+        
+        self.agregarIniFunc('uppercase')
+        
+        returnLbl = self.nuevoLbl()
+        compLbl = self.nuevoLbl()
+        tempP = self.agregarTemp()
+        tempH = self.agregarTemp()
+
+        self.agregarExp(tempP, 'P', '1', '+')
+        self.getStack(tempH, tempP)
+
+        tempC = self.agregarTemp()
+        self.putLbl(compLbl)
+        self.getHeap(tempC, tempH)
+        self.agregarIf(tempC, '-1', '==', returnLbl)
+
+        temp = self.agregarTemp()
+        passLbl = self.nuevoLbl()
+        
+        self.agregarIf(tempC, '97', '<', passLbl)
+        self.agregarIf(tempC, '122', '>', passLbl)
+        self.agregarExp(temp, tempC,'32', '-')
+        self.setHeap(tempH, temp)
+        self.putLbl(passLbl)
+
+        self.agregarExp(tempH, tempH, '1', '+')
+
+        self.agregarGoTo(compLbl)
+
+        self.putLbl(returnLbl)
+        self.agregarFinFunc()
+
+        self.enNativa = False
+
+    def fLowerCase(self):
+        if self.lowerCase:
+            return
+        
+        self.lowerCase = True
+        self.enNativa = True
+        
+        self.agregarIniFunc('lowercase')
+        
+        returnLbl = self.nuevoLbl()
+        compLbl = self.nuevoLbl()
+        tempP = self.agregarTemp()
+        tempH = self.agregarTemp()
+
+        self.agregarExp(tempP, 'P', '1', '+')
+        self.getStack(tempH, tempP)
+
+        tempC = self.agregarTemp()
+        self.putLbl(compLbl)
+        self.getHeap(tempC, tempH)
+        self.agregarIf(tempC, '-1', '==', returnLbl)
+
+        temp = self.agregarTemp()
+        passLbl = self.nuevoLbl()
+        
+        self.agregarIf(tempC, '65', '<', passLbl)
+        self.agregarIf(tempC, '90', '>', passLbl)
+        self.agregarExp(temp, tempC,'32', '+')
+        self.setHeap(tempH, temp)
+        self.putLbl(passLbl)
+
+        self.agregarExp(tempH, tempH, '1', '+')
+
+        self.agregarGoTo(compLbl)
+
+        self.putLbl(returnLbl)
+        self.agregarFinFunc()
+
+        self.enNativa = False
+
+    def fconcatString(self):
+        if self.concatString:
+            return
+        
+        self.concatString = True
+        self.enNativas = True
+
+        self.agregarIniFunc('concatString')
+        
+        returnLbl = self.nuevoLbl()
+        lbl1 = self.nuevoLbl()
+        lbl2 = self.nuevoLbl()
+        lbl3 = self.nuevoLbl()
+        t3 = self.agregarTemp()
+        t4 = self.agregarTemp()
+        t5 = self.agregarTemp()
+        t6 = self.agregarTemp()
+        t7 = self.agregarTemp()
+
+        self.agregarExp(t3, 'H',"","")
+        self.agregarExp(t4,'P','1','+')
+        self.getStack(t6, t4)
+        self.agregarExp(t5, 'P', '2', '+')
+
+        self.putLbl(lbl1)
+
+        self.getHeap(t7, t6)
+        self.agregarIf(t7, '-1','==', lbl2)
+        self.setHeap('H', t7)
+        self.agregarExp('H', 'H','1','+')
+        self.agregarExp(t6,t6,'1', '+')
+        self.agregarGoTo(lbl1)
+
+        self.putLbl(lbl2)
+
+        self.getStack(t6,t5)
+
+        self.putLbl(lbl3)
+        self.getHeap(t7, t6)
+        self.agregarIf(t7, '-1','==', returnLbl)
+        self.setHeap('H', t7)
+        self.agregarExp('H', 'H','1','+')
+        self.agregarExp(t6,t6,'1', '+')
+        self.agregarGoTo(lbl3)
+
+        self.putLbl(returnLbl)
+        self.setHeap('H', '-1')
+        self.agregarExp('H', 'H','1', '+')
+        self.setStack('P', t3)
+        self.agregarFinFunc()
+        self.enNativas = False
+    
+    def fPotencia(self):
+        if self.potencia:
+            return
+        
+        self.potencia = True
+        self.enNativa = True
+        self.agregarIniFunc('potencia')
+
+        # Labels a utilizar
+        lbl0 = self.nuevoLbl()
+        lbl1 = self.nuevoLbl()
+        lbl2 = self.nuevoLbl()
+        lbl3 = self.nuevoLbl()
+
+        # Temporales a utilizar
+        t1 = self.agregarTemp()
+        t2 = self.agregarTemp()
+        t3 = self.agregarTemp()
+        t4 = self.agregarTemp()
+
+        #Escritura del codigo
+        self.agregarExp(t2, 'P', '1','+')
+        self.getStack(t1, t2)
+        self.agregarExp(t3,t1,'','')
+        self.agregarExp(t4,t1,'','')
+        self.agregarExp(t2,'P','2','+')
+        self.getStack(t1,t2)
+        self.agregarIf(t1,'0','==', lbl1)
+        self.putLbl(lbl2)
+        self.agregarIf(t1, '1','<=',lbl0)
+        self.agregarExp(t3, t3,t4,'*')
+        self.agregarExp(t1,t1,'1', '-')
+        self.agregarGoTo(lbl2)
+        self.putLbl(lbl0)
+        self.setStack('P', t3)
+        self.agregarGoTo(lbl3)
+        self.putLbl(lbl1)
+        self.setStack('P', '1')
+        self.putLbl(lbl3)
+        self.agregarFinFunc()
+        self.agregarEspacio()
+        self.enNativa = False
+
+    def fLength(self):
+        if self.length:
+            return
+        
+        self.length = True
+        self.enNativa = True
+        self.agregarIniFunc('length')
+
+        returnLbl = self.nuevoLbl()
+        compLbl = self.nuevoLbl()
+
+        # Temporal puntero en Stack
+        temp = self.agregarTemp()
+        # Temporal puntero en Heap
+        tempH = self.agregarTemp()
+
+        tempR = self.agregarTemp()
+        
+        # Posición en Stack
+        self.agregarExp(temp, 'P', '1', '+')
+        self.getStack(tempH, temp)
+
+        self.agregarExp(tempR, '0', '', '')
+
+        # Temporal resultado
+        tempC = self.agregarTemp()
+        self.putLbl(compLbl)
+        # Posición en el Heap
+        self.getHeap(tempC, tempH)
+
+        self.agregarIf(tempC, '-1', '==', returnLbl)
+
+        # resultLbl = self.nuevoLbl()
+        self.agregarExp(tempR, tempR, '1', '+')
+        # self.putLbl(resultLbl)
+
+        self.agregarExp(tempH, tempH, '1', '+')
+        self.setStack('P', tempR)
+        self.agregarGoTo(compLbl)
+
         self.putLbl(returnLbl)
         self.agregarFinFunc()
         self.enNativa = False

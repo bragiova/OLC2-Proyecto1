@@ -33,7 +33,7 @@ class Logica(Expresion):
             self.opeIzq.trueLbl = self.trueLbl
             self.opeDer.trueLbl = self.trueLbl
             lblAndOr = generador.nuevoLbl()
-            self.opeIzq.falseLbl(lblAndOr)
+            self.opeIzq.falseLbl = lblAndOr
             self.opeDer.falseLbl = self.falseLbl
         elif self.tipo == TipoLogicas.NOT:
             self.opeIzq.falseLbl = self.trueLbl
@@ -52,11 +52,13 @@ class Logica(Expresion):
 
         # Se ejecuta el método de Primitivo, que obtiene el valor del operando
         opIzq = self.opeIzq.compilar(env)
-        if isinstance(opIzq, Error): return opIzq        
+        if isinstance(opIzq, Error): return opIzq
+
+        generador.putLbl(lblAndOr)
+
         opDer = self.opeDer.compilar(env)
         if isinstance(opDer, Error): return opDer
 
-        generador.putLbl(lblAndOr)
         generador.agregarEspacio()
 
         resultado = Retorno(Tipo.BOOL, None, False)

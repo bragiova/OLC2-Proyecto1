@@ -329,7 +329,7 @@ def p_nativas(t):
                   | expresion PUNTO RFIXED PARA expresion PARC
                   | expresion PUNTO REXPONENTIAL PARA expresion PARC
                   | RTYPEOF PARA expresion PARC
-                  | expresion PUNTO RLENGTH PARA PARC'''
+                  | RLENGTH PARA expresion PARC'''
     if t.slice[3].type == 'RUPCASE':
         t[0] = UpperCase(t[1], t.lineno(3), find_column(input, t.slice[3]))
     elif t.slice[3].type == 'RLOWCASE':
@@ -344,8 +344,8 @@ def p_nativas(t):
         t[0] = ToExponential(t[1], t[5], t.lineno(3), find_column(input, t.slice[3]))
     elif t.slice[1].type == 'RTYPEOF':
         t[0] = TypeOf(t[3], t.lineno(1), find_column(input, t.slice[1]))
-    elif t.slice[3].type == 'RLENGTH':
-        t[0] = Length(t[1], t.lineno(3), find_column(input, t.slice[3]))
+    elif t.slice[1].type == 'RLENGTH':
+        t[0] = Length(t[3], t.lineno(1), find_column(input, t.slice[1]))
 
 def p_error(t):
     

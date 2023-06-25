@@ -4,6 +4,7 @@ from Abstract.Retorno import *
 from enum import Enum
 from Sym.Error import Error
 from Sym.GeneradorC3D import GeneradorC3D
+from Expressions.LlamadaFuncion import LlamadaFuncion
 
 class TipoOperacionAritmetica(Enum):
     SUMA = 1
@@ -23,11 +24,21 @@ class Aritmetica(Expresion):
     def compilar(self, env):
         genAux = GeneradorC3D()
         generador = genAux.getInstancia()
+        opIzq = ''
+        opDer = ''
+
         # Se ejecuta el método de Primitivo, que obtiene el valor del operando
         opIzq = self.opIzq.compilar(env)
         if isinstance(opIzq, Error): return opIzq
-        opDer = self.opDer.compilar(env)
-        if isinstance(opDer, Error): return opDer
+        
+        if isinstance(self.opDer, LlamadaFuncion):
+            self.opDer.guardarTemps(generador, env, [opIzq.valor])
+            opDer = self.opDer.compilar(env)
+            if isinstance(opDer, Error): return opDer
+            self.opDer.recuperarTemps(generador, env, [opIzq.valor])
+        else:
+            opDer = self.opDer.compilar(env)
+            if isinstance(opDer, Error): return opDer
         
         if opIzq.tipo == Tipo.RETURNST:
             if isinstance(opIzq.valor, int) or isinstance(opIzq.valor, float):
@@ -50,44 +61,59 @@ class Aritmetica(Expresion):
                 if opIzq.tipo == Tipo.NUMBER and opDer.tipo == Tipo.NUMBER:
                     temp = generador.agregarTemp()
                     generador.agregarExp(temp, opIzq.valor, opDer.valor, '+')
+                    resultado.valor = temp
                 elif opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING:
-                    left_temp = generador.agregarTemp()
-                    right_temp = generador.agregarTemp()
-                    ret_temp = generador.agregarTemp()
-                    auxiliar_temp = generador.agregarTemp()
-                    generador.agregarExp(ret_temp, 'H', '', '')
-                    generador.agregarExp(
-                        left_temp, opIzq.valor, '', '')
-                    generador.agregarExp(
-                        right_temp, opDer.valor, '', '')
-                    generador.agregarExp(
-                        auxiliar_temp, opIzq.valor, '', '')
+                    generador.fconcatString()
+                    tmp1 = generador.agregarTemp()
+                    tmp2 = generador.agregarTemp()
+                    generador.agregarExp(tmp1, 'P', env.size, '+')
+                    generador.agregarExp(tmp1, tmp1, '1', '+')
+                    generador.setStack(tmp1, opIzq.valor)
+                    generador.agregarExp(tmp1, tmp1, '1', '+')
+                    generador.setStack(tmp1, opDer.valor)
+
+                    generador.nuevoEnv(env.size)
+                    generador.llamadaFun('concatString')
+                    generador.getStack(tmp2, 'P')
+                    generador.returnEnv(env.size)
+                    # left_temp = generador.agregarTemp()
+                    # right_temp = generador.agregarTemp()
+                    # ret_temp = generador.agregarTemp()
+                    # auxiliar_temp = generador.agregarTemp()
+                    # generador.agregarExp(ret_temp, 'H', '', '')
+                    # generador.agregarExp(
+                    #     left_temp, opIzq.valor, '', '')
+                    # generador.agregarExp(
+                    #     right_temp, opDer.valor, '', '')
+                    # generador.agregarExp(
+                    #     auxiliar_temp, opIzq.valor, '', '')
                     
-                    left_label = generador.nuevoLbl()
-                    right_label = generador.nuevoLbl()
-                    left_swaper = generador.agregarTemp()
-                    right_swaper = generador.agregarTemp()
-                    generador.getHeap(left_swaper, left_temp)
-                    generador.getHeap(right_swaper, right_temp)
+                    # left_label = generador.nuevoLbl()
+                    # right_label = generador.nuevoLbl()
+                    # left_swaper = generador.agregarTemp()
+                    # right_swaper = generador.agregarTemp()
+                    # generador.getHeap(left_swaper, left_temp)
+                    # generador.getHeap(right_swaper, right_temp)
 
-                    generador.putLbl(left_label)
-                    generador.setHeap('H', left_swaper)
-                    generador.nextHeap()
-                    generador.agregarExp(left_temp, left_temp, '1', '+')
-                    generador.getHeap(left_swaper, left_temp)
-                    generador.agregarIf(left_swaper, '-1', '!=', left_label)
+                    # generador.putLbl(left_label)
+                    # generador.setHeap('H', left_swaper)
+                    # generador.nextHeap()
+                    # generador.agregarExp(left_temp, left_temp, '1', '+')
+                    # generador.getHeap(left_swaper, left_temp)
+                    # generador.agregarIf(left_swaper, '-1', '!=', left_label)
 
-                    generador.putLbl(right_label)
-                    generador.setHeap('H', right_swaper)
-                    generador.nextHeap()
-                    generador.agregarExp(right_temp, right_temp, '1', '+')
-                    generador.getHeap(right_swaper, right_temp)
-                    generador.agregarIf(right_swaper, '-1', '!=', right_label)
-                    generador.setHeap('H', '-1')
-                    generador.nextHeap()
+                    # generador.putLbl(right_label)
+                    # generador.setHeap('H', right_swaper)
+                    # generador.nextHeap()
+                    # generador.agregarExp(right_temp, right_temp, '1', '+')
+                    # generador.getHeap(right_swaper, right_temp)
+                    # generador.agregarIf(right_swaper, '-1', '!=', right_label)
+                    # generador.setHeap('H', '-1')
+                    # generador.nextHeap()
                     # Se cambia tipo del resultado si son string operandos, operador ternario
-                    resultado.tipo = (Tipo.STRING if (opIzq.tipo == Tipo.STRING and opDer.tipo == Tipo.STRING) else resultado.tipo)
+                    resultado.tipo = Tipo.STRING
                     resultado.esTemp = False
+                    resultado.valor = tmp2
             else:
                 print('Error en tipo de dato - suma')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación suma', self.linea, self.columna)
@@ -95,6 +121,7 @@ class Aritmetica(Expresion):
             if esPermitido:
                 temp = generador.agregarTemp()
                 generador.agregarExp(temp, opIzq.valor, opDer.valor, '-')
+                resultado.valor = temp
             else:
                 print('Error en tipo de dato - resta')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación resta', self.linea, self.columna)
@@ -102,6 +129,7 @@ class Aritmetica(Expresion):
             if esPermitido:
                 temp = generador.agregarTemp()
                 generador.agregarExp(temp, opIzq.valor, opDer.valor, '*')
+                resultado.valor = temp
             else:
                 print('Error en tipo de dato - multiplicación')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación multiplicación', self.linea, self.columna)
@@ -109,6 +137,7 @@ class Aritmetica(Expresion):
             if esPermitido:
                 temp = generador.agregarTemp()
                 generador.agregarExp(temp, opIzq.valor, opDer.valor, '/')
+                resultado.valor = temp
             else:
                 print('Error en tipo de dato - división')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación división', self.linea, self.columna)
@@ -116,13 +145,29 @@ class Aritmetica(Expresion):
             if esPermitido:
                 temp = generador.agregarTemp()
                 generador.agregarModulo(temp, opIzq.valor, opDer.valor)
+                resultado.valor = temp
             else:
                 print('Error en tipo de dato - módulo')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación módulo', self.linea, self.columna)
         elif self.operacion == TipoOperacionAritmetica.POT:
             if esPermitido:
                 temp = generador.agregarTemp()
-                generador.agregarExp(temp, opIzq.valor, opDer.valor, '^')
+                generador.fPotencia()
+
+                tmp3 = generador.agregarTemp()
+                generador.agregarExp(tmp3, 'P', env.size, '+')
+                generador.agregarExp(tmp3, tmp3, '1', '+')
+
+                generador.setStack(tmp3, opIzq.valor)
+                generador.agregarExp(tmp3, tmp3, '1', '+')
+                generador.setStack(tmp3, opDer.valor)
+
+                generador.nuevoEnv(env.size)
+                generador.llamadaFun('potencia')
+                generador.getStack(temp, 'P')
+                generador.returnEnv(env.size)
+                
+                resultado.valor = temp
             else:
                 print('Error en tipo de dato - potencia')
                 return Error('Semántico', 'El tipo de dato no es permitido para la operación potencia', self.linea, self.columna)

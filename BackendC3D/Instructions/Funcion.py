@@ -61,6 +61,6 @@ class Funcion(Instruccion):
     def getParams(self):
         return self.listParametros
     
-    # def getTipo(self):
-    #     return self.tipo
+    def getTipo(self):
+        return self.tipoFuncion
 

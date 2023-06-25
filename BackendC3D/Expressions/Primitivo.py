@@ -16,9 +16,10 @@ class Primitivo(Expresion):
             return Retorno(self.tipo, str(self.valor), False)
         elif self.tipo == Tipo.STRING:
             retTemp = generador.agregarTemp()
-            generador.agregarExp(retTemp, 'H', '', '')
-            generador.setHeap('H', 0)
-            generador.nextHeap()
+            generador.agregarAsig(retTemp, 'H')
+            # generador.agregarExp(retTemp, 'H', '', '')
+            # generador.setHeap('H', 0)
+            # generador.nextHeap()
 
             for char in str(self.valor):
                 generador.setHeap('H', ord(char))

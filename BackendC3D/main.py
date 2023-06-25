@@ -89,9 +89,13 @@ def main():
     absolutepath = os.path.abspath(__file__)
     fileDirectory = os.path.dirname(absolutepath)
     # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
-    f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'), 'r')
+    f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesbasicas.ts'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesrecursivas.ts'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos1d.ts'), 'r')
+    # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos2d.ts'), 'r')
     s = f.read()
     # s = '''
     #     // prueba comentario

@@ -19,8 +19,8 @@ class Return(Instruccion):
         self.valor = valReturn.valor
 
         if self.tipo == Tipo.BOOL:
-            self.trueLbl = valReturn.getTrueLbl()
-            self.falseLbl = valReturn.getFalseLbl()
+            self.trueLbl = valReturn.trueLbl
+            self.falseLbl = valReturn.falseLbl
         
         return self
 

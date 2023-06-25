@@ -57,14 +57,31 @@ class LlamadaFuncion(Expresion):
             generador.agregarComentario(f"Fin de la llamada a la funcion {self.ident}")
             generador.agregarEspacio()
 
-            return Retorno(funcion.tipoFuncion, temp, True)
+            if funcion.tipoFuncion != Tipo.BOOL:
+                return Retorno(funcion.tipoFuncion, temp, True)
+            else:
+                generador.agregarComentario('Recuperacion bool')
+
+                if self.trueLbl == '':
+                    self.trueLbl = generador.nuevoLbl()
+                
+                if self.falseLbl == '':
+                    self.falseLbl = generador.nuevoLbl()
+                
+                generador.agregarIf(temp, '1', '==', self.trueLbl)
+                generador.agregarGoTo(self.falseLbl)
+                result = Retorno(funcion.tipoFuncion, temp, True)
+                result.trueLbl = self.trueLbl
+                result.falseLbl = self.falseLbl
+                generador.agregarComentario('Fin recuperacion bool')
+                return result
         
     def guardarTemps(self, generator, env, tmp2):
         generator.agregarComentario('Guardado de temporales')
         tmp = generator.agregarTemp()
         for tmp1 in tmp2:
             generator.agregarExp(tmp, 'P', env.size, '+')
-            generator.setStack(tmp,tmp1)
+            generator.setStack(tmp, tmp1)
             env.size += 1
         generator.agregarComentario('Fin de guardado de temporales')
     
@@ -74,5 +91,5 @@ class LlamadaFuncion(Expresion):
         for tmp1 in tmp2:
             env.size -= 1
             generator.agregarExp(tmp, 'P', env.size, '+')
-            generator.getStack(tmp1,tmp)
+            generator.getStack(tmp1, tmp)
         generator.agregarComentario('Fin de recuperacion de temporales')

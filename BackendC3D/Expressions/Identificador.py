@@ -47,7 +47,7 @@ class Identificador(Expresion):
         generador.agregarComentario('Fin compilación acceso')
         generador.agregarEspacio()
 
-        result = Retorno(Tipo.BOOL, None, False)
+        result = Retorno(Tipo.BOOL, None, True)
         result.trueLbl = self.trueLbl
         result.falseLbl = self.falseLbl
 

@@ -22,10 +22,11 @@ class ImprimirClg(Instruccion):
             if isinstance(expreVal, Error): return expreVal
 
             if expreVal.tipo == Tipo.NUMBER:
-                if isinstance(expreVal.valor, int):
-                    generador.agregarPrint('d', expreVal.valor)
-                else:
-                    generador.imprimirFloat('f', expreVal.valor)
+                generador.agregarPrint('f', expreVal.valor)
+                # if isinstance(expreVal.valor, int):
+                #     generador.agregarPrint('d', expreVal.valor)
+                # else:
+                #     generador.imprimirFloat('f', expreVal.valor)
             elif expreVal.tipo == Tipo.STRING:
                 generador.fPrintString()
                 paramTemp = generador.agregarTemp()
@@ -48,7 +49,7 @@ class ImprimirClg(Instruccion):
                 generador.imprimirFalse()
                 generador.putLbl(lblTemp)
             
-            generador.agregarPrint('c', 32)
+            generador.agregarPrint('c', 10)
             # txtImprimir += str(expreVal.valor) + ' '
         
         # print(txtImprimir)

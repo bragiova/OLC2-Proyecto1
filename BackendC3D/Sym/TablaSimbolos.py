@@ -68,16 +68,21 @@ class TablaSimbolos:
         return None
     
     # Se actualiza el valor de un símbolo en la tabla de símbolos
-    def updateTabla(self, simbolo):
+    def updateTabla(self, ident, tipo, enHeap):
         envActual = self
         while envActual != None:
-            if simbolo.getId() in envActual.tablaS:
-                envActual.tablaS[simbolo.getId()].setValor(simbolo.getValor())
-                TablaSimbolos.variables[simbolo.getId()] = simbolo
-                return None
+            if ident in envActual.tablaS:
+                envActual.tablaS[ident].setTipo(tipo)
+                TablaSimbolos.variables[ident].setEnHeap(enHeap)
+                return envActual.tablaS[ident]
             else:
                 envActual = envActual.envAnterior
-        return Error("Semántico", "Variable no encontrada", simbolo.getLinea(), simbolo.getColumna())
+        
+        if ident in self.tablaS:
+            self.tablaS[ident] = Simbolo(ident, tipo, self.envAnterior == None, self.tablaS[ident].getPosicion(), enHeap)
+            TablaSimbolos.variables[ident] = self.tablaS[ident]
+            return self.tablaS[ident]
+        # return Error("Semántico", "Variable no encontrada", -1, -1)
     
     def existeSimbEnActual(self,identificador):
         entorno = self

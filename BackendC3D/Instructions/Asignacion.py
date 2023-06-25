@@ -2,6 +2,7 @@ from Abstract.Instruccion import Instruccion
 from Abstract.Retorno import *
 from Sym.Simbolo import Simbolo
 from Sym.Error import Error
+from Sym.GeneradorC3D import GeneradorC3D
 
 class Asignacion(Instruccion):
     def __init__(self, ident, valor, linea, columna):
@@ -9,18 +10,40 @@ class Asignacion(Instruccion):
         self.ident = ident
         self.valor = valor
 
-    def ejecutar(self, env):
+    def compilar(self, env):
         simbVar = env.getSimbolo(self.ident)
+        genAux = GeneradorC3D()
+        generador = genAux.getInstancia()
+
+        generador.agregarComentario('Compilación asignacion de variable')
 
         if simbVar is not None:
-            valVariable = self.valor.ejecutar(env)
+            temp = generador.agregarTemp()
+
+            tempPos = simbVar.getPosicion()
+            if not simbVar.esGlobal:
+                tempPos = generador.agregarTemp()
+                generador.agregarExp(tempPos, 'P', simbVar.getPosicion(), '+')
+            generador.getStack(temp, tempPos)
+
+            tmp = generador.agregarTemp()
+
+            valVariable = self.valor.compilar(env)
             if isinstance(valVariable, Error): return valVariable
 
-            if (simbVar.getTipo() != valVariable.tipo) and simbVar.getTipo() != Tipo.ANY:
-                print('Error', 'El valor a asignar no es del mismo tipo que la variable')
-                return Error('Semántico', 'El valor a asignar no es del mismo tipo que la variable', self.linea, self.columna)
+            if valVariable.tipo == Tipo.BOOL:
+                tempLbl = generador.nuevoLbl()
+                generador.putLbl(valVariable.trueLbl)
+                generador.setStack(tempPos, '1')
+                generador.agregarGoTo(tempLbl)
+                generador.putLbl(valVariable.falseLbl)
+                generador.setStack(tempPos, '0')
+                generador.putLbl(tempLbl)
+            else:
+                generador.setStack(tempPos, valVariable.valor)
 
-            simbActualizado = Simbolo(simbVar.getId(), simbVar.getTipo(), valVariable.valor, self.linea, self.columna)
-            env.updateTabla(simbActualizado)
+            generador.agregarComentario('Fin Compilación asignacion de variable')
+            generador.agregarEspacio()
+
         else:
             return Error('Semántico', 'Variable no existe', self.linea, self.columna)
