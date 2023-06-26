@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { TablaSimbolos } from './TabSimbolos';
 import { Errores } from './Errores';
 import './Reportes.css';
+import { ArbolAST } from './ArbolAST';
 
 export function Reportes() {
     const [estadoRep, setEstadoRep] = useState({ simbolos: '', errores: '', ast: ''});
@@ -28,6 +29,7 @@ export function Reportes() {
                 setEstadoRep({ ...estadoRep, simbolos: jsonModificado });
                 setMostrarSimb(true);
                 setMostrarErr(false);
+                setMostrarAST(false);
             });
     }
 
@@ -50,6 +52,30 @@ export function Reportes() {
                 setEstadoRep({ ...estadoRep, errores: jsonModificado });
                 setMostrarErr(true);
                 setMostrarSimb(false);
+                setMostrarAST(false);
+            });
+    }
+
+    const getAST = () => {
+        fetch('http://localhost:3000/ast', {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' },
+            })
+            .then(async (resp) => {
+                let i = 1;
+                const jsonRespuesta = await resp.json();
+                const jsonModificado = jsonRespuesta.ast;
+                // if (jsonModificado != null){
+                //     jsonModificado.forEach(element => {
+                //         element['numero'] = i;
+                //         i++;
+                //     });
+                // }
+                // console.log(jsonRespuesta);
+                setEstadoRep({ ...estadoRep, ast: jsonModificado });
+                setMostrarErr(false);
+                setMostrarSimb(false);
+                setMostrarAST(true);
             });
     }
 
@@ -61,11 +87,12 @@ export function Reportes() {
             <div className='centro'>
                 <button className='btn btn-outline-success btn-lg m-2' onClick={() => getTablaSimbolos()}>Tabla de Símbolos</button>
                 <button className='btn btn-outline-info btn-lg m-2' onClick={() => getErrores()}>Tabla de Errores</button>
-                <button className='btn btn-outline-warning btn-lg m-2' >Árbol de Análisis Sintáctico</button>
+                <button className='btn btn-outline-warning btn-lg m-2' onClick={() => getAST()}>Árbol de Análisis Sintáctico</button>
             </div>
             <div className='centro'>
                 {(mostrarSimb) ? <TablaSimbolos rep = {estadoRep.simbolos}/> : null}
                 {(mostrarErr) ? <Errores rep = {estadoRep.errores}/> : null}
+                {(mostrarAST) ? <ArbolAST rep = {estadoRep.ast}/> : null}
             </div>
         </div>
     )

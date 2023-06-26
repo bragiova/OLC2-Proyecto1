@@ -24,6 +24,22 @@ export function Editor(){
         }
     }
 
+    const enviarEntradaC3D = () => {
+        if (estado.editor !== ''){
+            const codigo = { 'codigo' : estado.editor };
+            fetch('http://localhost:3001/entradaC3D', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(codigo)
+            })
+            .then(async (resp) => {
+                const jsonRespuesta = await resp.json();
+                console.log(jsonRespuesta);
+                setEstado({ ...estado, c3d: jsonRespuesta.c3d });
+            });
+        }
+    }
+
     return(
         <div className='container-fluid'>
             <div>
@@ -31,7 +47,7 @@ export function Editor(){
             </div>
             <div>
                 <button className='btn btn-outline-success btn-lg m-2' onClick={() => enviarEntrada()}>Interpretar</button>
-                <button className='btn btn-outline-info btn-lg m-2' >Compilar</button>
+                <button className='btn btn-outline-info btn-lg m-2' onClick={() => enviarEntradaC3D()}>Compilar</button>
             </div>
             <br />
             <br />

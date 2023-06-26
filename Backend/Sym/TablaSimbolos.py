@@ -5,6 +5,7 @@ class TablaSimbolos:
     errores = []
     variables = {}
     funciones = {}
+    entrada = ''
 
     def __init__(self, envAnterior = None):
         self.tablaS = {}

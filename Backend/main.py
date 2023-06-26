@@ -5,12 +5,16 @@ import json
 from flask_cors import CORS
 from werkzeug.utils import redirect
 from flask.helpers import url_for
+import graphviz
+import base64
 
 import Sintactico as Analizar
 from Sym.TablaSimbolos import *
 from Sym.Error import Error
 from Instructions.ImprimirClg import ImprimirClg
 from Abstract.Retorno import Tipo
+import gramaticaAST as ArbolAST
+
 sys.setrecursionlimit(3000)
 
 app = Flask(__name__)
@@ -20,11 +24,13 @@ def interpretar(txtEntrada):
     env = TablaSimbolos()
     try:
         ast = Analizar.parse(txtEntrada)
+        TablaSimbolos.entrada = txtEntrada
         for inst in ast:
             instRet = inst.ejecutar(env)
             if isinstance(instRet, Error): TablaSimbolos.errores.append(instRet)
     except Exception as err:
         print('error except: ', err)
+        ImprimirClg.salidaConsola += 'Ocurrieron errores al interpretar'
     return ImprimirClg.salidaConsola
 
 @app.route('/entrada', methods = ['GET', 'POST'])
@@ -77,6 +83,17 @@ def repErrores():
     objErrores['errores'] = listErrores
     return objErrores
 
+@app.route('/ast', methods = ['GET'])
+def repAST():
+    grafo = graphviz.Digraph('AST', comment='prueba ast')
+
+    salidaDot = ArbolAST.parseAst(TablaSimbolos.entrada)
+    grafo.body = salidaDot
+
+    output = grafo.pipe(format='svg')
+    output1 = base64.b64encode(output).decode('utf-8')
+
+    return { 'ast' : output1 }
 
 def getTipo(tipo):
     if tipo == Tipo.NUMBER:
@@ -87,6 +104,8 @@ def getTipo(tipo):
         return 'boolean'
     elif tipo == Tipo.ANY:
         return 'any'
+    elif tipo == Tipo.ARREGLO:
+        return 'arreglo'
     else:
         return ''
 
@@ -107,11 +126,11 @@ if __name__ == '__main__':
 #     absolutepath = os.path.abspath(__file__)
 #     fileDirectory = os.path.dirname(absolutepath)
 #     # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
-#     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
-#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesbasicas.ts'), 'r')
-#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesrecursivas.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesbasicas1.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesrecursivas1.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos1d.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos2d.ts'), 'r')
 #     s = f.read()
@@ -127,14 +146,23 @@ if __name__ == '__main__':
 #     #     console.log(b);
 #     #     console.log(a + c);
 #     #     '''
-#     ast = Analizar.parse(s)
+#     # ast = Analizar.parse(s)
 
-#     for inst in ast:
-#         valRet = inst.ejecutar(env)
-#         if isinstance(valRet, Error): TablaSimbolos.errores.append(valRet)
+#     # for inst in ast:
+#     #     valRet = inst.ejecutar(env)
+#     #     if isinstance(valRet, Error): TablaSimbolos.errores.append(valRet)
 
-#     pruebaError()
+#     # pruebaError()
 #     # pruebaSimb()
 #     # print(ImprimirClg.salidaConsola)
+
+#     prueba = graphviz.Digraph(comment='prueba ast')
+
+#     salidaDot = ArbolAST.parseAst(s)
+#     prueba.body = salidaDot
+
+#     output = prueba.pipe(format='png')
+#     output1 = base64.b64encode(output).decode('utf-8')
+#     print(salidaDot)
 
 # main()
