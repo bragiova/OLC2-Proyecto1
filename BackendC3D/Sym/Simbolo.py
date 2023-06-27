@@ -1,11 +1,11 @@
 
 class Simbolo:
-    def __init__(self, ident, tipo, varGlobal, posicion, enHeap):
+    def __init__(self, ident, tipo, varGlobal, posicion, enHeap, linea, columna):
         self.ident = ident
         self.tipo = tipo
         # self.valor = valor
-        # self.linea = linea
-        # self.columna = columna
+        self.linea = linea
+        self.columna = columna
         self.posicion = posicion
         self.enHeap = enHeap
         self.length = 0
@@ -32,17 +32,17 @@ class Simbolo:
     # def getValor(self):
     #     return self.valor
 
-    # def setLinea(self, linea):
-    #     self.linea = linea
+    def setLinea(self, linea):
+        self.linea = linea
 
-    # def getLinea(self):
-    #     return self.linea
+    def getLinea(self):
+        return self.linea
 
-    # def setColumna(self, col):
-    #     self.columna = col
+    def setColumna(self, col):
+        self.columna = col
 
-    # def getColumna(self):
-    #     return self.columna   
+    def getColumna(self):
+        return self.columna
 
     def setPosicion(self, pos):
         self.posicion = pos

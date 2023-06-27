@@ -11,7 +11,9 @@ export function Reportes() {
     const [mostrarAST, setMostrarAST] = useState(false);
 
     const getTablaSimbolos = () => {
-        fetch('http://localhost:3000/simbolos', {
+        const itemSession = sessionStorage.getItem('esC3D');
+        const url = (itemSession == 1) ? 'http://34.125.195.117:3001/simbolosC3D' : 'http://34.125.195.117:3000/simbolos';
+        fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             })
@@ -25,7 +27,7 @@ export function Reportes() {
                         i++;
                     });
                 }
-                // console.log(jsonRespuesta);
+                
                 setEstadoRep({ ...estadoRep, simbolos: jsonModificado });
                 setMostrarSimb(true);
                 setMostrarErr(false);
@@ -34,7 +36,9 @@ export function Reportes() {
     }
 
     const getErrores = () => {
-        fetch('http://localhost:3000/errores', {
+        const itemSession = sessionStorage.getItem('esC3D');
+        const url = (itemSession == 1) ? 'http://34.125.195.117:3001/erroresC3D' : 'http://34.125.195.117:3000/errores';
+        fetch(url, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             })
@@ -48,7 +52,7 @@ export function Reportes() {
                         i++;
                     });
                 }
-                // console.log(jsonRespuesta);
+                
                 setEstadoRep({ ...estadoRep, errores: jsonModificado });
                 setMostrarErr(true);
                 setMostrarSimb(false);
@@ -57,26 +61,22 @@ export function Reportes() {
     }
 
     const getAST = () => {
-        fetch('http://localhost:3000/ast', {
+        const itemSession = sessionStorage.getItem('esC3D');
+        if (itemSession == 0){
+            fetch('http://34.125.195.117:3000/ast', {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json' },
             })
             .then(async (resp) => {
-                let i = 1;
                 const jsonRespuesta = await resp.json();
                 const jsonModificado = jsonRespuesta.ast;
-                // if (jsonModificado != null){
-                //     jsonModificado.forEach(element => {
-                //         element['numero'] = i;
-                //         i++;
-                //     });
-                // }
-                // console.log(jsonRespuesta);
+
                 setEstadoRep({ ...estadoRep, ast: jsonModificado });
                 setMostrarErr(false);
                 setMostrarSimb(false);
                 setMostrarAST(true);
             });
+        }
     }
 
     return(

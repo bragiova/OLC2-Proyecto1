@@ -25,6 +25,9 @@ def interpretar(txtEntrada):
     try:
         ast = Analizar.parse(txtEntrada)
         TablaSimbolos.entrada = txtEntrada
+        TablaSimbolos.variables = {}
+        TablaSimbolos.funciones = {}
+        TablaSimbolos.errores = []
         for inst in ast:
             instRet = inst.ejecutar(env)
             if isinstance(instRet, Error): TablaSimbolos.errores.append(instRet)
@@ -85,15 +88,20 @@ def repErrores():
 
 @app.route('/ast', methods = ['GET'])
 def repAST():
+    objAST = {}
     grafo = graphviz.Digraph('AST', comment='prueba ast')
+    try:
+        salidaDot = ArbolAST.parseAst(TablaSimbolos.entrada)
+        grafo.body = salidaDot
 
-    salidaDot = ArbolAST.parseAst(TablaSimbolos.entrada)
-    grafo.body = salidaDot
+        output = grafo.pipe(format='svg')
+        output1 = base64.b64encode(output).decode('utf-8')
 
-    output = grafo.pipe(format='svg')
-    output1 = base64.b64encode(output).decode('utf-8')
-
-    return { 'ast' : output1 }
+        objAST['ast'] = output1
+    except Exception as err:
+        print('error except: ', err)
+        
+    return objAST
 
 def getTipo(tipo):
     if tipo == Tipo.NUMBER:
@@ -110,7 +118,7 @@ def getTipo(tipo):
         return ''
 
 if __name__ == '__main__':
-    app.run(debug = True, port=3000)
+    app.run(host='0.0.0.0', debug = True, port=3000)
 
 # def pruebaError():
 #     for err in TablaSimbolos.errores:

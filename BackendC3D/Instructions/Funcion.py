@@ -26,7 +26,7 @@ class Funcion(Instruccion):
 
         if self.listParametros != None:
             for param in self.listParametros:
-                simbolo = nuevoEnv.guardarVar(param.ident, param.tipo, (param.tipo == Tipo.STRING))
+                simbolo = nuevoEnv.guardarVar(param.ident, param.tipo, (param.tipo == Tipo.STRING), self.linea, self.columna)
             
         generador.agregarIniFunc(self.ident)
 

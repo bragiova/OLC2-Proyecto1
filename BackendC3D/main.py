@@ -24,6 +24,10 @@ def compilar(txtEntrada):
     env = TablaSimbolos()
     try:
         ast = Analizar.parse(txtEntrada)
+        TablaSimbolos.entrada = txtEntrada
+        TablaSimbolos.variables = {}
+        TablaSimbolos.funciones = {}
+        TablaSimbolos.errores = []
         for inst in ast:
             instRet = inst.compilar(env)
             if isinstance(instRet, Error): TablaSimbolos.errores.append(instRet)
@@ -42,7 +46,7 @@ def entrada():
         ImprimirClg.salidaConsola = ''
         return {'c3d': codigo}
 
-@app.route('/simbolos', methods = ['GET'])
+@app.route('/simbolosC3D', methods = ['GET'])
 def repSimbolos():
     objTablaSimb = {}
     listSimbolos = []
@@ -51,7 +55,6 @@ def repSimbolos():
         objSimb = {}
         objSimb['id'] = simbKey
         objSimb['tipo'] = getTipo(TablaSimbolos.variables[simbKey].getTipo())
-        objSimb['valor'] = str(TablaSimbolos.variables[simbKey].getValor())
         objSimb['linea'] = str(TablaSimbolos.variables[simbKey].getLinea())
         objSimb['colum'] = str(TablaSimbolos.variables[simbKey].getColumna())
         listSimbolos.append(objSimb)
@@ -60,13 +63,28 @@ def repSimbolos():
         objFunc = {}
         objFunc['id'] = funKey
         objFunc['tipo'] = 'Función'
-        objFunc['valor'] = 'instrucción'
         objFunc['linea'] = str(TablaSimbolos.funciones[funKey].linea)
         objFunc['colum'] = str(TablaSimbolos.funciones[funKey].columna)
         listSimbolos.append(objFunc)
     
     objTablaSimb['simbolos'] = listSimbolos
     return objTablaSimb
+
+@app.route('/erroresC3D', methods = ['GET'])
+def repErrores():
+    listErrores = []
+    objErrores = {}
+
+    for simError in TablaSimbolos.errores:
+        objError = {}
+        objError['tipo'] = simError.tipoError
+        objError['desc'] = simError.desc
+        objError['fila'] = simError.linea
+        objError['colum'] = simError.columna
+        listErrores.append(objError)
+    
+    objErrores['errores'] = listErrores
+    return objErrores
 
 def getTipo(tipo):
     if tipo == Tipo.NUMBER:
@@ -81,7 +99,7 @@ def getTipo(tipo):
         return ''
 
 if __name__ == '__main__':
-    app.run(debug = True, port=3001)
+    app.run(host='0.0.0.0', debug = True, port=3001)
 
 # def pruebaError():
 #     for err in TablaSimbolos.errores:
@@ -89,7 +107,7 @@ if __name__ == '__main__':
 
 # def pruebaSimb():
 #     for simb in TablaSimbolos.variables.keys():
-#         print(TablaSimbolos.variables[simb].getId(), TablaSimbolos.variables[simb].getValor())
+#         print(TablaSimbolos.variables[simb].getId(), TablaSimbolos.variables[simb].getTipo(), TablaSimbolos.variables[simb].getLinea())
 
 # def main():
 #     env = TablaSimbolos()
@@ -97,11 +115,13 @@ if __name__ == '__main__':
 #     absolutepath = os.path.abspath(__file__)
 #     fileDirectory = os.path.dirname(absolutepath)
 #     # print(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.txt'))
-#     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
-#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
-#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'archivoPrueba.ts'), 'r')
+
+#     f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_facilita.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesbasicas.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'funcionesrecursivas.ts'), 'r')
+
+#     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'entrada_intermedia.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos1d.ts'), 'r')
 #     # f = open(os.path.join(fileDirectory, 'archivosPruebas', 'arreglos2d.ts'), 'r')
 #     s = f.read()
@@ -132,7 +152,7 @@ if __name__ == '__main__':
 #     fi.write(C3D)
 #     fi.close()
 #     # pruebaError()
-#     # pruebaSimb()
+#     pruebaSimb()
 #     # print(ImprimirClg.salidaConsola)
 
 # main()

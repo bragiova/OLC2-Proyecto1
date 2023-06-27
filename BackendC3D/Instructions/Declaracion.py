@@ -35,7 +35,7 @@ class Declaracion(Instruccion):
             valorVar.tipo = Tipo.ANY
 
         if self.tipo == valorVar.tipo:
-            nuevoSimbolo = env.guardarVar(self.ident, valorVar.tipo, (valorVar.tipo == Tipo.STRING), self.find)
+            nuevoSimbolo = env.guardarVar(self.ident, valorVar.tipo, (valorVar.tipo == Tipo.STRING), self.linea, self.columna, self.find)
 
             # if env.existeSimbEnActual(self.ident):
             #     return Error('Semántico', 'Variable ya está declarada', self.linea, self.columna)

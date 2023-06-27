@@ -53,26 +53,26 @@ class If(Instruccion):
                         generador.setStack('P', '0')
                         generador.agregarGoTo(entorno.returnLbl)
                         generador.agregarComentario('Fin resultado retorno función')
+            elif isinstance(resultado, Retorno):
+                if resultado.tipo == Tipo.BREAKST:
+                    if env.breakLbl != '':
+                        generador.agregarGoTo(env.breakLbl)
+                    else:
+                        salida = generador.nuevoLbl()
+                        generador.agregarGoTo(salida)
+                        generador.putLbl(condicionIf.falseLbl)
+                        generador.putLbl(salida)
+                        return Error('Semántico', 'Break solamente debe de ir en un ciclo', self.linea, self.columna)
                 
-            if resultado.tipo == Tipo.BREAKST:
-                if env.breakLbl != '':
-                    generador.agregarGoTo(env.breakLbl)
-                else:
-                    salida = generador.nuevoLbl()
-                    generador.agregarGoTo(salida)
-                    generador.putLbl(condicionIf.falseLbl)
-                    generador.putLbl(salida)
-                    return Error('Semántico', 'Break solamente debe de ir en un ciclo', self.linea, self.columna)
-            
-            if resultado.tipo == Tipo.CONTIST:
-                if env.continueLbl != '':
-                    generador.agregarGoTo(env.continueLbl)
-                else:
-                    salida = generador.nuevoLbl()
-                    generador.agregarGoTo(salida)
-                    generador.putLbl(condicionIf.falseLbl)
-                    generador.putLbl(salida)
-                    return Error('Semántico', 'Continue solamente debe de ir en un ciclo', self.linea, self.columna)
+                if resultado.tipo == Tipo.CONTIST:
+                    if env.continueLbl != '':
+                        generador.agregarGoTo(env.continueLbl)
+                    else:
+                        salida = generador.nuevoLbl()
+                        generador.agregarGoTo(salida)
+                        generador.putLbl(condicionIf.falseLbl)
+                        generador.putLbl(salida)
+                        return Error('Semántico', 'Continue solamente debe de ir en un ciclo', self.linea, self.columna)
         
         salir = generador.nuevoLbl()
         generador.agregarGoTo(salir)
@@ -105,26 +105,26 @@ class If(Instruccion):
                             generador.setStack('P', '0')
                             generador.agregarGoTo(entorno.returnLbl)
                             generador.agregarComentario('Fin resultado retorno función')
+                elif isinstance(resultado, Retorno):    
+                    if resultado.tipo == Tipo.BREAKST:
+                        if env.breakLbl != '':
+                            generador.agregarGoTo(env.breakLbl)
+                        else:
+                            salida = generador.nuevoLbl()
+                            generador.agregarGoTo(salida)
+                            generador.putLbl(condicionIf.falseLbl)
+                            generador.putLbl(salida)
+                            return Error('Semántico', 'Break solamente debe de ir en un ciclo', self.linea, self.columna)
                     
-                if resultado.tipo == Tipo.BREAKST:
-                    if env.breakLbl != '':
-                        generador.agregarGoTo(env.breakLbl)
-                    else:
-                        salida = generador.nuevoLbl()
-                        generador.agregarGoTo(salida)
-                        generador.putLbl(condicionIf.falseLbl)
-                        generador.putLbl(salida)
-                        return Error('Semántico', 'Break solamente debe de ir en un ciclo', self.linea, self.columna)
-                
-                if resultado.tipo == Tipo.CONTIST:
-                    if env.continueLbl != '':
-                        generador.agregarGoTo(env.continueLbl)
-                    else:
-                        salida = generador.nuevoLbl()
-                        generador.agregarGoTo(salida)
-                        generador.putLbl(condicionIf.falseLbl)
-                        generador.putLbl(salida)
-                        return Error('Semántico', 'Continue solamente debe de ir en un ciclo', self.linea, self.columna)
+                    if resultado.tipo == Tipo.CONTIST:
+                        if env.continueLbl != '':
+                            generador.agregarGoTo(env.continueLbl)
+                        else:
+                            salida = generador.nuevoLbl()
+                            generador.agregarGoTo(salida)
+                            generador.putLbl(condicionIf.falseLbl)
+                            generador.putLbl(salida)
+                            return Error('Semántico', 'Continue solamente debe de ir en un ciclo', self.linea, self.columna)
                     
         elif self.bloqElseIf is not None:
             # Se interpreta el objeto que se manda, ya que desde la gramática se manda un objeto If

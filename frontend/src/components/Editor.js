@@ -11,15 +11,16 @@ export function Editor(){
     const enviarEntrada = () => {
         if (estado.editor !== ''){
             const codigo = { 'codigo' : estado.editor };
-            fetch('http://localhost:3000/entrada', {
+            fetch('http://34.125.195.117:3000/entrada', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(codigo)
             })
             .then(async (resp) => {
                 const jsonRespuesta = await resp.json();
-                console.log(jsonRespuesta);
+                // console.log(jsonRespuesta);
                 setEstado({ ...estado, consola: jsonRespuesta.consola });
+                sessionStorage.setItem('esC3D', 0);
             });
         }
     }
@@ -27,15 +28,16 @@ export function Editor(){
     const enviarEntradaC3D = () => {
         if (estado.editor !== ''){
             const codigo = { 'codigo' : estado.editor };
-            fetch('http://localhost:3001/entradaC3D', {
+            fetch('http://34.125.195.117:3001/entradaC3D', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(codigo)
             })
             .then(async (resp) => {
                 const jsonRespuesta = await resp.json();
-                console.log(jsonRespuesta);
+                // console.log(jsonRespuesta);
                 setEstado({ ...estado, c3d: jsonRespuesta.c3d });
+                sessionStorage.setItem('esC3D', 1);
             });
         }
     }
